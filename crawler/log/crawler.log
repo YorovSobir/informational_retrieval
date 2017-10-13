@@ -140,3 +140,46 @@
 2017-10-14 01:44:39,077 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
 2017-10-14 01:44:40,230 INFO:Starting new HTTP connection (1): www.diagnos.ru
 2017-10-14 01:44:40,283 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:56:10,481 INFO:Starting new HTTP connection (1): simptomer.ru
+2017-10-14 01:56:10,633 DEBUG:"GET /robots.txt HTTP/1.1" 200 1807
+2017-10-14 01:56:12,658 INFO:Starting new HTTP connection (1): simptomer.ru
+2017-10-14 01:56:12,836 DEBUG:"GET /robots.txt HTTP/1.1" 200 1807
+2017-10-14 01:56:17,071 INFO:Starting new HTTP connection (1): simptomer.ru
+2017-10-14 01:56:17,320 DEBUG:"GET /robots.txt HTTP/1.1" 200 1807
+2017-10-14 01:56:25,221 INFO:Starting new HTTP connection (1): simptomer.ru
+2017-10-14 01:56:25,357 DEBUG:"GET /robots.txt HTTP/1.1" 200 1807
+2017-10-14 01:56:31,523 INFO:Starting new HTTP connection (1): simptomer.ru
+2017-10-14 01:56:31,715 DEBUG:"GET /robots.txt HTTP/1.1" 200 1807
+2017-10-14 01:56:33,268 INFO:Starting new HTTP connection (1): simptomer.ru
+2017-10-14 01:56:33,447 DEBUG:"GET /robots.txt HTTP/1.1" 200 1807
+2017-10-14 01:56:34,848 INFO:Starting new HTTP connection (1): simptomer.ru
+2017-10-14 01:56:34,954 DEBUG:"GET /robots.txt HTTP/1.1" 200 1807
+2017-10-14 01:56:36,557 INFO:Starting new HTTP connection (1): vk.com
+2017-10-14 01:56:36,579 DEBUG:"GET /robots.txt HTTP/1.1" 404 407
+2017-10-14 01:56:37,682 WARNING:unknown url type: https
+2017-10-14 01:56:37,685 INFO:Starting new HTTPS connection (1): plus.google.com
+2017-10-14 02:10:00,204 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 02:10:00,266 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 02:10:01,736 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 02:10:01,791 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 02:10:01,792 INFO:Disallow crawling http://www.diagnos.ru/login/?upaction=login&refto=/
+2017-10-14 02:10:01,808 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 02:10:01,867 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 02:10:01,868 INFO:Disallow crawling http://www.diagnos.ru/login/?upaction=register&refto=/
+2017-10-14 02:10:01,884 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 02:10:01,942 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 02:10:03,070 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 02:10:03,122 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 02:10:14,843 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 02:10:14,897 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 02:10:16,061 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 02:10:16,115 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 02:10:17,405 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 02:10:17,457 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 02:10:18,583 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 02:10:18,639 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 02:10:19,899 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 02:10:19,951 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 02:10:39,678 INFO:Starting new HTTP connection (1): www.genesha.ru
+2017-10-14 02:10:39,708 DEBUG:"GET /robots.txt HTTP/1.1" 200 1403
+2017-10-14 02:10:41,568 INFO:Starting new HTTPS connection (1): online-diagnos.ru

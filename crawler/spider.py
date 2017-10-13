@@ -50,7 +50,7 @@ class LinkParser(HTMLParser):
 
         if 'text/html' in response.getheader('Content-Type'):
             data = response.read()
-            self.feed(data.decode('utf-8'))
+            self.feed(data.decode(response.headers.get_content_charset()))
             self.__db_cursor.add_data(url, data)
 
     def get_links(self):
