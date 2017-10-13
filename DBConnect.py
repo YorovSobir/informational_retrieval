@@ -1,6 +1,5 @@
 import psycopg2 as pg_driver
 
-
 class DBService:
     def __init__(self, user, password, host, dbname):
         self.db = pg_driver.connect(user=user, password=password, host=host, dbname=dbname)
@@ -12,6 +11,8 @@ class DBService:
     def get_url(self, n=1):
         self.cur.execute('SELECT get_url({0})'.format(n))
         result = self.cur.fetchone()
+        if result[0] is None:
+            return []
         return result[0]
 
     def is_empty(self):
