@@ -23,7 +23,7 @@ def build_parser():
     return parser
 
 
-def main(argv):
+def main():
     log_format = '%(asctime) -15s %(levelname)s:%(message)s'
     logging.basicConfig(filename='./log/crawler.log', level=logging.DEBUG, format=log_format)
     parser = build_parser()
@@ -34,4 +34,4 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main()

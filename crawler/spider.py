@@ -1,4 +1,3 @@
-# coding=UTF-8
 import urllib
 import urllib.error
 from html.parser import HTMLParser
@@ -6,6 +5,8 @@ from urllib import parse
 from urllib.request import urlopen
 import logging
 from url_modify import asciify_url
+import time
+import reppy
 
 
 class LinkParser(HTMLParser):
@@ -14,6 +15,10 @@ class LinkParser(HTMLParser):
         self.__baseUrl = ''
         self.__links = []
         self.__db_cursor = db_cursor
+        # self.__robot_parser = RobotFileParser()
+        # self.__regex_base_url = re.compile("((https?://)?.*?)/.*")
+        self.__agent_name = "MedBot"
+        self.__robots_agent = {}
 
     def error(self, message):
         super(LinkParser, self).error(message)
@@ -26,8 +31,19 @@ class LinkParser(HTMLParser):
                     self.__links.append(new_url)
 
     def parse(self, url):
+        robots_url = reppy.Robots.robots_url(url)
+        if url not in self.__robots_agent:
+            robots = reppy.Robots.fetch(robots_url)
+            agent = robots.agent(self.__agent_name)
+            self.__robots_agent[robots_url] = agent
+        agent = self.__robots_agent[robots_url]
+
+        if not agent.allowed(url):
+            logging.info("Disallow crawling " + url)
+            return
         self.__baseUrl = url
         self.__links = []
+        time.sleep(1)
         try:
             response = urlopen(asciify_url(url))
         except urllib.error.URLError as e:
