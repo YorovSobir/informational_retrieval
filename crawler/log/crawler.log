@@ -89,3 +89,54 @@
 2017-10-14 01:13:06,259 INFO:Starting new HTTP connection (1): diagnos.ru
 2017-10-14 01:13:06,598 DEBUG:"GET /robots.txt HTTP/1.1" 301 240
 2017-10-14 01:13:06,599 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:21:01,755 INFO:Starting new HTTPS connection (1): plus.google.com
+2017-10-14 01:21:01,807 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:21:03,529 INFO:Starting new HTTPS connection (1): plus.google.com
+2017-10-14 01:21:03,582 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:22:02,364 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:22:02,427 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:41:46,039 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:41:46,130 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:42:57,749 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:42:57,804 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:42:57,807 INFO:Disallow crawling http://www.diagnos.ru/login/?upaction=login&refto=/
+2017-10-14 01:43:16,415 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:43:16,468 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:43:16,470 INFO:Disallow crawling http://www.diagnos.ru/login/?upaction=register&refto=/
+2017-10-14 01:43:33,915 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:43:33,970 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:43:35,109 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:43:35,161 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:43:43,639 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:43:43,692 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:43:45,878 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:43:45,929 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:43:45,931 INFO:Disallow crawling http://www.diagnos.ru/consult
+2017-10-14 01:43:45,975 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:43:46,029 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:43:48,939 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:43:49,013 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:43:50,703 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:43:50,758 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:44:07,574 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:44:07,628 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:44:32,852 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:44:32,915 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:44:32,917 INFO:Disallow crawling http://www.diagnos.ru/login/?upaction=login&refto=/diseases/nerves/migren
+2017-10-14 01:44:32,930 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:44:32,984 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:44:32,985 INFO:Disallow crawling http://www.diagnos.ru/login/?upaction=register&refto=/diseases/nerves/migren
+2017-10-14 01:44:32,998 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:44:33,051 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:44:34,175 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:44:34,229 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:44:35,440 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:44:35,491 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:44:36,630 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:44:36,684 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:44:37,832 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:44:37,884 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:44:39,024 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:44:39,077 DEBUG:"GET /robots.txt HTTP/1.1" 200 None
+2017-10-14 01:44:40,230 INFO:Starting new HTTP connection (1): www.diagnos.ru
+2017-10-14 01:44:40,283 DEBUG:"GET /robots.txt HTTP/1.1" 200 None

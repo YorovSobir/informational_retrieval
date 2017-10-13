@@ -15,8 +15,6 @@ class LinkParser(HTMLParser):
         self.__baseUrl = ''
         self.__links = []
         self.__db_cursor = db_cursor
-        # self.__robot_parser = RobotFileParser()
-        # self.__regex_base_url = re.compile("((https?://)?.*?)/.*")
         self.__agent_name = "MedBot"
         self.__robots_agent = {}
 
@@ -61,11 +59,11 @@ class LinkParser(HTMLParser):
 
 def spider(db_cursor):
     parser = LinkParser(db_cursor)
-    pages = db_cursor.get_url()
+    pages = db_cursor.get_url(10)
     while pages:
         for page in pages:
             links = []
             parser.parse(page)
             links.extend(parser.get_links())
             db_cursor.add_url(links)
-        pages = db_cursor.get_url()
+        pages = db_cursor.get_url(10)

@@ -11,6 +11,7 @@ class DBService:
     def get_url(self, n=1):
         self.cur.execute('SELECT get_url({0})'.format(n))
         result = self.cur.fetchone()
+        self.db.commit()
         if result[0] is None:
             return []
         return result[0]
@@ -50,7 +51,3 @@ class DBService:
                 .format(pg_driver.Binary(data), url)
             self.cur.execute(cmd)
             self.db.commit()
-
-    # def get(self, url):
-    #     self.cur.execute('SELECT bdata FROM storage WHERE url=\'{0}\''.format(url))
-    #     print(self.cur.fetchone()[0].encode())
