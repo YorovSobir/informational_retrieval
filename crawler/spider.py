@@ -5,6 +5,7 @@ from html.parser import HTMLParser
 from urllib import parse
 from urllib.request import urlopen
 import logging
+from url_modify import asciify_url
 
 
 class LinkParser(HTMLParser):
@@ -28,7 +29,7 @@ class LinkParser(HTMLParser):
         self.__baseUrl = url
         self.__links = []
         try:
-            response = urlopen(url)
+            response = urlopen(asciify_url(url))
         except urllib.error.URLError as e:
             logging.warning(msg=e.reason)
             return
