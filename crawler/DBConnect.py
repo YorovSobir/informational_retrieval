@@ -41,11 +41,15 @@ class DBService:
         count = self.cur.fetchone()
         if count[0] == 0:
             cmd = 'INSERT INTO storage(url, update_count, last_update, bdata) VALUES (\'{0}\', 0, now(), {1})'\
-                .format(url, pg_driver.Binary(data.encode()))
+                .format(url, pg_driver.Binary(data))
             self.cur.execute(cmd)
             self.db.commit()
         else:
             cmd = 'UPDATE storage SET update_count=update_count+1, last_update=now(), bdata={0} WHERE url=\'{1}\''\
-                .format(pg_driver.Binary(data.encode()), url)
+                .format(pg_driver.Binary(data), url)
             self.cur.execute(cmd)
             self.db.commit()
+
+    # def get(self, url):
+    #     self.cur.execute('SELECT bdata FROM storage WHERE url=\'{0}\''.format(url))
+    #     print(self.cur.fetchone()[0].encode())
