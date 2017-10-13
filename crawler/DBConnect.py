@@ -1,6 +1,5 @@
 import psycopg2 as pg_driver
 
-
 class DBService:
     def __init__(self, user, password, host, dbname):
         self.db = pg_driver.connect(user=user, password=password, host=host, dbname=dbname)
@@ -9,13 +8,12 @@ class DBService:
     def __del__(self):
         self.db.close()
 
-    def get_url(self):
-        self.cur.execute('SELECT url FROM urls limit 1')
+    def get_url(self, n=1):
+        self.cur.execute('SELECT get_url({0})'.format(n))
         result = self.cur.fetchone()
-        if result is not None:
-            self.cur.execute('DELETE FROM urls WHERE url=\'{0}\''.format(result[0]))
-            self.db.commit()
-        return result
+        if result[0] is None:
+            return []
+        return result[0]
 
     def is_empty(self):
         self.cur.execute('SELECT COUNT(*) FROM urls')
@@ -23,13 +21,16 @@ class DBService:
         return result[0] == 0
 
     def add_url(self, urls):
-            for url in urls:
-                try:
+        for url in urls:
+            try:
+                cmd = 'SELECT url FROM old_urls WHERE url=\'{0}\''.format(url)
+                self.cur.execute(cmd)
+                if self.cur.fetchone() is None:
                     cmd = 'INSERT INTO urls(url) VALUES (\'{0}\')'.format(url)
                     self.cur.execute(cmd)
                     self.db.commit()
-                except:
-                    self.db.rollback()
+            except:
+                self.db.rollback()
 
     def size(self):
         self.cur.execute('SELECT COUNT(*) FROM storage')
