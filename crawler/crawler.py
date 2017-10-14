@@ -29,6 +29,7 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
     db_cursor = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
+    db_cursor.add_base(args.urls)
     db_cursor.add_url(args.urls)
     spider(db_cursor)
 

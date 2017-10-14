@@ -8,11 +8,22 @@ import reppy
 import re
 
 headers = {'User-Agent': 'MedBot', 'Content-type': 'text/html'}
-
 robots_agent = {}
+base_links = set()
+unknown_links = []
 
 
 def get_urls(db_cursor, url):
+    try:
+        parsed_url = urllib.parse.urlparse(url)
+    except ValueError as e:
+        logging.warning(str(e))
+        return []
+
+    if parsed_url.netloc not in base_links:
+        unknown_links.append(url)
+        return []
+
     try:
         response = requests.get(url, headers=headers)
         time.sleep(0.1)
@@ -34,6 +45,8 @@ def get_urls(db_cursor, url):
 
 
 def spider(db_cursor):
+    for link in db_cursor.get_base():
+        base_links.add(link)
     pages = db_cursor.get_url(10)
     while pages:
         for page in pages:
