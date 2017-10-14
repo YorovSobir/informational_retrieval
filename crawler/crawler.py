@@ -2,7 +2,7 @@ import sys
 import argparse
 import logging
 from DBConnect import DBService
-from spider import spider
+from spider import Spider
 from urllib.parse import urlparse
 
 
@@ -40,7 +40,7 @@ def main():
         urls_domain.append(domain.netloc)
     db_cursor.add_base(urls_domain)
     db_cursor.add_url(args.urls)
-    spider(db_cursor)
+    Spider(db_cursor).spider()
 
 
 if __name__ == '__main__':
