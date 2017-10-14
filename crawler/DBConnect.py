@@ -32,8 +32,8 @@ class DBService:
                     cmd = 'INSERT INTO urls(url) VALUES (\'{0}\')'.format(url)
                     self.cur.execute(cmd)
                     self.db.commit()
-            except:
-                logging.warning('Can\'t add url ' + url)
+            except pg_driver.Error as e:
+                logging.warning('Can\'t add url ' + url + ' code ' + e.pgcode)
                 self.db.rollback()
 
     def size(self):
@@ -50,8 +50,8 @@ class DBService:
                     .format(url, pg_driver.Binary(data))
                 self.cur.execute(cmd)
                 self.db.commit()
-            except:
-                logging.error('Can\'t insert url ' + url)
+            except pg_driver.Error as e:
+                logging.error('Can\'t insert url ' + url + ' code ' + e.pgcode)
                 self.db.rollback()
         else:
             try:
@@ -59,8 +59,8 @@ class DBService:
                     .format(pg_driver.Binary(data), url)
                 self.cur.execute(cmd)
                 self.db.commit()
-            except:
-                logging.error('Can\'t update url ' + url)
+            except pg_driver.Error as e:
+                logging.error('Can\'t update url ' + url + ' code ' + e.pgcode)
                 self.db.rollback()
 
     def get_base(self):
@@ -77,6 +77,6 @@ class DBService:
             try:
                 self.cur.execute('INSERT INTO base(url) VALUES (\'{0}\')'.format(url))
                 self.db.commit()
-            except:
-                logging.warning('Can\'t add to base url ' + url)
+            except pg_driver.Error as e:
+                logging.warning('Can\'t add to base url ' + url + ' code ' + e.pgcode)
                 self.db.rollback()
