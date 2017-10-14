@@ -8,7 +8,7 @@ CREATE OR REPLACE FUNCTION get_url(n INT) RETURNS text[]
     FOR u IN (SELECT url FROM urls LIMIT n)
     LOOP
       DELETE FROM urls WHERE url=u;
-      INSERT INTO old_urls VALUES (u);
+      INSERT INTO old_urls VALUES (u) ON CONFLICT DO NOTHING;
       result = array_append(result, u);
     END LOOP;
     RETURN result;
