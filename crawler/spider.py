@@ -15,7 +15,7 @@ robots_agent = {}
 def get_urls(db_cursor, url):
     try:
         response = requests.get(url, headers=headers)
-        time.sleep(1)
+        time.sleep(0.1)
         http_encoding = response.encoding if 'charset' in response.headers.get('content-type', '').lower() else None
         html_encoding = EncodingDetector.find_declared_encoding(response.content, is_html=True)
         encoding = html_encoding or http_encoding
@@ -48,15 +48,18 @@ def spider(db_cursor):
             if not m:
                 logging.info("Invalid url " + page)
                 continue
-            robots_url = reppy.Robots.robots_url(page)
-            if page not in robots_agent:
-                robots = reppy.Robots.fetch(robots_url)
-                agent = robots.agent(headers["User-Agent"])
-                robots_agent[robots_url] = agent
-            agent = robots_agent[robots_url]
-            if not agent.allowed(page):
-                logging.info("Disallow crawling " + page)
-                continue
+            try:
+                robots_url = reppy.Robots.robots_url(page)
+                if page not in robots_agent:
+                    robots = reppy.Robots.fetch(robots_url)
+                    agent = robots.agent(headers["User-Agent"])
+                    robots_agent[robots_url] = agent
+                agent = robots_agent[robots_url]
+                if not agent.allowed(page):
+                    logging.info("Disallow crawling " + page)
+                    continue
+            except:
+                logging.error("Parse Robot.txt " + page)
             links = []
             links.extend(get_urls(db_cursor, page))
             db_cursor.add_url(links)
