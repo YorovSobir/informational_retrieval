@@ -27,7 +27,7 @@ class DBService:
         for url in urls:
             try:
                 cmd = 'SELECT url FROM old_urls WHERE url=\'{0}\''.format(url)
-                self.cur.execute('LOCK urls IN SHARE ROW EXCLUSIVE MODE')
+                # self.cur.execute('LOCK urls IN SHARE ROW EXCLUSIVE MODE')
                 self.cur.execute(cmd)
                 if self.cur.fetchone() is None:
                     cmd = 'INSERT INTO urls(url) VALUES (\'{0}\')'.format(url)
