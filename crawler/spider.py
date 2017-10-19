@@ -19,7 +19,10 @@ class Spider:
     def __init__(self, db_cursor):
         self.__db_cursor = db_cursor
 
-    def get_urls(self, url):
+    def get_urls(self, url, delay):
+        if delay is None:
+            delay = 0.5
+        time.sleep(delay)
         result = []
         try:
             parsed_url = urllib.parse.urlparse(url)
@@ -36,7 +39,6 @@ class Spider:
             if response.status_code != requests.codes.ok:
                 logging.warning("Invalid status code " + response.status_code)
                 return result
-            time.sleep(0.1)
             http_encoding = response.encoding if 'charset' in response.headers.get('content-type', '').lower() else None
             html_encoding = EncodingDetector.find_declared_encoding(response.content, is_html=True)
             encoding = html_encoding or http_encoding
@@ -68,9 +70,10 @@ class Spider:
         if not m:
             logging.info("Invalid url " + url)
             return
+        agent = None
         try:
             robots_url = reppy.Robots.robots_url(url)
-            if url not in self.__robots_agent:
+            if robots_url not in self.__robots_agent:
                 robots = reppy.Robots.fetch(robots_url)
                 agent = robots.agent(self.__headers["User-Agent"])
                 self.__robots_agent[robots_url] = agent
@@ -80,7 +83,7 @@ class Spider:
                 return
         except:
             logging.error("Parse Robot.txt " + url)
-        urls = self.get_urls(url)
+        urls = self.get_urls(url, agent.delay)
         self.__db_cursor.add_url(urls)
 
     def spider(self):
