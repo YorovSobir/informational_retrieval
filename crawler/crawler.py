@@ -17,7 +17,7 @@ def build_parser():
                         help='user in postgres server')
     parser.add_argument('--password', default='medicine',
                         help='password for user in postgres server')
-    parser.add_argument('--urls', nargs='+',
+    parser.add_argument('--urls', nargs='*',
                         help='base urls where will start')
 
     return parser
