@@ -25,10 +25,14 @@ class DBService:
         for p in result:
             try:
                 self.cur.execute('update urls set seen = true where url = \'{0}\''.format(p[0]))
-                self.db.commit()
             except pg_driver.Error:
-                logging.warning("can't update seen url " + str(p[0]))
-                self.db.rollback()
+                logging.warning("it's unreal " + str(p[0]))
+        try:
+            self.db.commit()
+        except:
+            logging.error("commit failed")
+            self.db.rollback()
+            return []
         return [x[0] for x in result]
 
     def is_empty(self):

@@ -20,8 +20,6 @@ class Spider:
         self.__db_cursor = db_cursor
 
     def get_urls(self, url, delay):
-        if delay is None:
-            delay = 0.5
         time.sleep(delay)
         result = []
         try:
@@ -83,7 +81,12 @@ class Spider:
                 return
         except:
             logging.error("Parse Robot.txt " + url)
-        urls = self.get_urls(url, agent.delay)
+        if agent is None or agent.delay is None:
+            delay = 0.5
+        else:
+            delay = agent.delay
+
+        urls = self.get_urls(url, delay)
         self.__db_cursor.add_url(urls)
 
     def spider(self):
