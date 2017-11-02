@@ -16,8 +16,9 @@ class Spider:
     __unknown_urls = []
     __default = 10
 
-    def __init__(self, db_cursor):
+    def __init__(self, db_cursor, store):
         self.__db_cursor = db_cursor
+        self.__store = store
 
     def get_urls(self, url, delay):
         time.sleep(delay)
@@ -41,12 +42,17 @@ class Spider:
             html_encoding = EncodingDetector.find_declared_encoding(response.content, is_html=True)
             encoding = html_encoding or http_encoding
             soup = BeautifulSoup(response.content, "lxml", from_encoding=encoding)
-            self.__db_cursor.add_data(url, soup.text.encode())
+            try:
+                self.__store.store(url, response.content.decode(encoding))
+            except:
+                logging.error("cannot write to file content of " + url)
+            self.__db_cursor.add_data(url)
             for tag in soup.find_all('a', href=True):
                 if tag is None:
                     logging.warning("invalid tag in link " + url)
                     continue
                 result.append(urllib.parse.urljoin(url, tag['href']))
+            self.__db_cursor.update_incoming_links(result)
         except requests.exceptions.ReadTimeout:
             logging.error("Read timeout")
         except requests.exceptions.ConnectTimeout:

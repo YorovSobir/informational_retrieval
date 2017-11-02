@@ -4,6 +4,8 @@ from DBConnect import DBService
 from spider import Spider
 from urllib.parse import urlparse
 
+from store import Store
+
 
 def build_parser():
     parser = argparse.ArgumentParser(add_help=False, description='Data for database connection')
@@ -19,6 +21,8 @@ def build_parser():
                         help='password for user in postgres server')
     parser.add_argument('--urls', nargs='*',
                         help='base urls where will start')
+    parser.add_argument('--root_dir', default='./data',
+                        help='root directory where we store data')
 
     return parser
 
@@ -39,7 +43,7 @@ def main():
         urls_domain.append(domain.netloc)
     db_cursor.add_base(urls_domain)
     db_cursor.add_url(args.urls)
-    Spider(db_cursor).spider()
+    Spider(db_cursor, Store(args.root_dir)).spider()
 
 
 if __name__ == '__main__':
