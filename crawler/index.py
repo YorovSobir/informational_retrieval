@@ -21,7 +21,8 @@ class Index:
     def create_for_first_latter(self):
         p = Pool(4)
         letters = [chr(i) for i in range(ord('а'), ord('я') + 1)]
-        letters.extend([chr(i) for i in range(10)])
+        letters.extend([chr(i + 48) for i in range(10)])
+        letters.append('ё')
         self.__common_dict = {key: dict() for key in letters}
         input = self.__get_documents()
         p.map(pre_process_letter, [(input, ch, self.__common_dict[ch]) for ch in letters])
@@ -39,7 +40,7 @@ class Index:
         return self.__common_dict
 
     def __get_documents(self):
-        cmd = 'SELECT id, url FROM storage limit 2'
+        cmd = 'SELECT id, url FROM storage limit 1'
         self.__db_cursor.execute(cmd)
         result = self.__db_cursor.fetchall()
         return [(idx, self.__store.url_to_path(url)) for idx, url in result]
