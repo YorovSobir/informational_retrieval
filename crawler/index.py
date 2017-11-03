@@ -1,33 +1,42 @@
 import re
+
+import nltk
 from nltk.corpus import stopwords
 import pymorphy2
 from bs4 import BeautifulSoup
 from collections import Counter
 import pickle
 import logging
+import os
+from pathlib import Path
 
 
 class Index:
-    def __init__(self, db_cursor, index_path):
-        self.__db_cursor = db_cursor
+    def __init__(self, db_service, store, index_path):
+        self.__db_cursor = db_service.cur
+        self.__store = store
+        self.__common_dict = {}
         self.__index_path = index_path
 
     def create(self):
-        data = []
-        [data.append(self.__tokens(i, doc)) for i, doc in self.__next_document()]
-        common_dict = {}
+        data = [(self.__tokens(i, doc)) for i, doc in self.__next_document()]
         for doc_id, words in data:
             for word in words.keys():
-                if word not in common_dict:
-                    common_dict[word] = []
-                common_dict[word] += [(doc_id, words[word])]
-        return common_dict
+                if word not in self.__common_dict:
+                    self.__common_dict[word] = []
+                self.__common_dict[word] += [(doc_id, words[word])]
+        return self.__common_dict
 
     def __next_document(self):
-        data1 = 'Словари распространяются 13 отдельными пакетами 13'
-        data2 = 'Словари отдельными пакетами 13'
-        yield 1, data1
-        yield 2, data2
+        cmd = 'SELECT id, url FROM storage'
+        self.__db_cursor.execute(cmd)
+        result = self.__db_cursor.fetchall()
+        for idx, url in result:
+            fullpath = self.__store.url_to_path(url)
+            path = Path(os.path.join(fullpath, 'content.txt'))
+            if path.exists():
+                print(idx)
+                yield idx, path.read_text()
 
     def __tokens(self, i, raw_data):
         morph = pymorphy2.MorphAnalyzer()
@@ -41,21 +50,16 @@ class Index:
             result[word] = [idx for idx, x in enumerate(words) if x == word]
         return i, result
 
-    def serialize(self, dictionary, file_name):
-        with open(file_name, 'wb') as f:
+    def serialize(self, file_name):
+        with open(os.path.join(self.__index_path, file_name), 'wb') as f:
             try:
-                pickle.dump(dictionary, f)
+                pickle.dump(self.__common_dict, f)
             except pickle.PicklingError as e:
                 logging.error(str(e))
 
     def deserialize(self, file_name):
-        with open(file_name, 'rb') as f:
+        with open(os.path.join(self.__index_path, file_name), 'rb') as f:
             try:
-                return pickle.load(f)
+                self.__common_dict = pickle.load(f)
             except pickle.UnpicklingError as e:
                 logging.error(str(e))
-
-
-if __name__ == "__main__":
-    a = Index(None, './index')
-    pickle.dump(a.create(), open('index.ind', 'wb'))

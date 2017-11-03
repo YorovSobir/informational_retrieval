@@ -25,8 +25,8 @@ def build_parser():
     parser.add_argument('--root_dir', default='./data',
                         help='root directory where we store data')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--crawler', help='run crawler instead of index')
-    group.add_argument('--index', help='run index instead of crawler')
+    group.add_argument('--crawler', action='store_true', help='run crawler instead of index')
+    group.add_argument('--index', action='store_true', help='run index instead of crawler')
     return parser
 
 
@@ -36,8 +36,11 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
     db_cursor = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
+    store = Store(args.root_dir)
     if args.index:
-        Index(db_cursor)
+        index = Index(db_cursor, store, './index')
+        index.create()
+        index.serialize('index.ind')
     else:
         urls_domain = []
         for url in args.urls:
@@ -49,7 +52,7 @@ def main():
             urls_domain.append(domain.netloc)
         db_cursor.add_base(urls_domain)
         db_cursor.add_url(args.urls)
-        Spider(db_cursor, Store(args.root_dir)).spider()
+        Spider(db_cursor, store).spider()
 
 
 if __name__ == '__main__':
