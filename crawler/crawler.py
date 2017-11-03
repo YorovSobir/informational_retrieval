@@ -1,6 +1,7 @@
 import argparse
 import logging
 from DBConnect import DBService
+from index import Index
 from spider import Spider
 from urllib.parse import urlparse
 
@@ -23,7 +24,9 @@ def build_parser():
                         help='base urls where will start')
     parser.add_argument('--root_dir', default='./data',
                         help='root directory where we store data')
-
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('--crawler', help='run crawler instead of index')
+    group.add_argument('--index', help='run index instead of crawler')
     return parser
 
 
@@ -33,17 +36,20 @@ def main():
     parser = build_parser()
     args = parser.parse_args()
     db_cursor = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
-    urls_domain = []
-    for url in args.urls:
-        try:
-            domain = urlparse(url)
-        except ValueError as e:
-            logging.warning(print(e))
-            continue
-        urls_domain.append(domain.netloc)
-    db_cursor.add_base(urls_domain)
-    db_cursor.add_url(args.urls)
-    Spider(db_cursor, Store(args.root_dir)).spider()
+    if args.index:
+        Index(db_cursor)
+    else:
+        urls_domain = []
+        for url in args.urls:
+            try:
+                domain = urlparse(url)
+            except ValueError as e:
+                logging.warning(str(e))
+                continue
+            urls_domain.append(domain.netloc)
+        db_cursor.add_base(urls_domain)
+        db_cursor.add_url(args.urls)
+        Spider(db_cursor, Store(args.root_dir)).spider()
 
 
 if __name__ == '__main__':
