@@ -40,7 +40,7 @@ class Index:
         return self.__common_dict
 
     def __get_documents(self):
-        cmd = 'SELECT id, url FROM storage limit 1'
+        cmd = 'SELECT id, url FROM storage'
         self.__db_cursor.execute(cmd)
         result = self.__db_cursor.fetchall()
         return [(idx, self.__store.url_to_path(url)) for idx, url in result]
