@@ -16,7 +16,7 @@ class Index:
         self.__common_dict = {}
         self.__index_path = index_path
         self.__stemmer = RussianStemmer('russian')
-        
+
     def create(self):
         data = [(self.__tokens(i, doc)) for i, doc in self.__next_document()]
         for doc_id, words in data:
