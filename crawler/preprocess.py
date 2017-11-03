@@ -4,28 +4,39 @@ import pymorphy2
 from bs4 import BeautifulSoup
 from collections import Counter
 import pickle
+import os
+from pathlib import Path
 
 
 class Index:
-    def __init__(self, db_cursor):
+    def __init__(self, db_cursor, store):
         self.__db_cursor = db_cursor
+        self.__store = store
+        self.__common_dict = {}
 
     def create(self):
         data = []
         [data.append(self.__tokens(i, doc)) for i, doc in self.__next_document()]
-        common_dict = {}
         for doc_id, words in data:
             for word in words.keys():
-                if word not in common_dict:
-                    common_dict[word] = []
-                common_dict[word] += [(doc_id, words[word])]
-        return common_dict
+                if word not in self.__common_dict:
+                    self.__common_dict[word] = []
+                self.__common_dict[word] += [(doc_id, words[word])]
+        return self.__common_dict
+
+    def save(self, path, file_name):
+        pickle.dump(self.__common_dict, open(os.path.join(path, file_name), 'wb'))
+
+    def load(self, path, file_name):
+        self.__common_dict = pickle.load(open(os.path.join(path, file_name), 'rb'))
 
     def __next_document(self):
-        data1 = 'Словари распространяются 13 отдельными пакетами 13'
-        data2 = 'Словари отдельными пакетами 13'
-        yield 1, data1
-        yield 2, data2
+        cmd = 'SELECT id, url FROM storage'
+        self.__db_cursor.execute(cmd)
+        result = self.__db_cursor.fetchall()
+        for idx, url in result:
+            path = self.__store.url_to_path(url)
+            yield idx, Path(os.path.join(path, 'content.txt')).read_text()
 
     def __tokens(self, i, raw_data):
         morph = pymorphy2.MorphAnalyzer()
@@ -38,8 +49,3 @@ class Index:
         for word in words_to_count.keys():
             result[word] = [idx for idx, x in enumerate(words) if x == word]
         return i, result
-
-
-if __name__ == "__main__":
-    a = Index(None)
-    pickle.dump(a.create(), open('index.ind', 'wb'))
