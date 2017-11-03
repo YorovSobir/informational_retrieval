@@ -1,12 +1,14 @@
 import re
 from nltk.corpus import stopwords
 from bs4 import BeautifulSoup
-from collections import Counter
 import pickle
 import logging
 import os
 from pathlib import Path
 from nltk.stem.snowball import RussianStemmer
+from multiprocessing import Pool
+
+stemmer = RussianStemmer(True)
 
 
 class Index:
@@ -15,38 +17,23 @@ class Index:
         self.__store = store
         self.__common_dict = {}
         self.__index_path = index_path
-        self.__stemmer = RussianStemmer('russian')
-        
+
     def create(self):
-        data = [(self.__tokens(i, doc)) for i, doc in self.__next_document()]
+        p = Pool(4)
+        input = self.__get_documents()
+        data = filter(None.__ne__, p.map(pre_process, input))
         for doc_id, words in data:
             for word in words.keys():
                 if word not in self.__common_dict:
                     self.__common_dict[word] = []
-                self.__common_dict[word] += [(doc_id, words[word])]
+                self.__common_dict[word].append((doc_id, words[word]))
         return self.__common_dict
 
-    def __next_document(self):
+    def __get_documents(self):
         cmd = 'SELECT id, url FROM storage'
         self.__db_cursor.execute(cmd)
         result = self.__db_cursor.fetchall()
-        for idx, url in result:
-            fullpath = self.__store.url_to_path(url)
-            path = Path(os.path.join(fullpath, 'content.txt'))
-            if path.exists():
-                print(idx)
-                yield idx, path.read_text()
-
-    def __tokens(self, i, raw_data):
-        raw_data = BeautifulSoup(raw_data, 'lxml').getText()
-        words = re.sub(r'[^А-я0-9ёЁ ]', '', raw_data).lower().split()
-        words = [self.__stemmer.stem(word) for word in words]
-        words = [word for word in words if word not in stopwords.words('russian')]
-        words_to_count = Counter(words)
-        result = {}
-        for word in words_to_count.keys():
-            result[word] = [idx for idx, x in enumerate(words) if x == word]
-        return i, result
+        return [(idx, self.__store.url_to_path(url)) for idx, url in result]
 
     def serialize(self, file_name):
         with open(os.path.join(self.__index_path, file_name), 'wb') as f:
@@ -61,3 +48,19 @@ class Index:
                 self.__common_dict = pickle.load(f)
             except pickle.UnpicklingError as e:
                 logging.error(str(e))
+
+
+def pre_process(tuples):
+    idx, full_path = tuples
+    path = Path(os.path.join(full_path, 'content.txt'))
+    if path.exists():
+        raw_data = path.read_text()
+        raw_data = BeautifulSoup(raw_data, 'lxml').getText()
+        words = re.sub(r'[^А-я0-9ёЁ ]', '', raw_data).split()
+        words = [stemmer.stem(word) for word in words if word not in stopwords.words('russian')]
+        result = {}
+        for i, word in enumerate(words):
+            if word not in result:
+                result[word] = []
+            result[word].append(i)
+        return idx, result
