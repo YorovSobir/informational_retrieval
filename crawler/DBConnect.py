@@ -9,11 +9,12 @@ class DBService:
         self.db.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
         self.cur = self.db.cursor()
         self.cur.execute('create table if not exists storage '
-                         '(url text primary key, update_count integer, '
-                         'last_update date, bdata bytea)')
+                         '(id serial primary key, url text unique, update_count integer, '
+                         'last_update date, incoming_link integer)')
         self.cur.execute('create table if not exists urls '
                          '(url text primary key, seen boolean)')
         self.cur.execute('create table if not exists base (url text primary key)')
+        self.cur.execute('create table if not exists disease (name text, degree text)')
         self.db.commit()
 
     def __del__(self):
@@ -55,16 +56,17 @@ class DBService:
         result = self.cur.fetchone()
         return result[0]
 
-    def add_data(self, url, data):
+    def add_data(self, url):
         try:
-            cmd = 'INSERT INTO storage(url, update_count, last_update, bdata) ' \
-                  'VALUES (\'{0}\', 0, now(), {1}) ON CONFLICT (url) DO UPDATE ' \
-                  'SET update_count = storage.update_count + 1, last_update=now(), bdata={1}'\
-                .format(url, pg_driver.Binary(data))
+            cmd = 'INSERT INTO storage(url, update_count, last_update, incoming_link) ' \
+                  'VALUES (\'{0}\', 0, now(), 0) ' \
+                  'ON CONFLICT (url) DO UPDATE ' \
+                  'SET update_count = storage.update_count + 1, last_update=now()'\
+                .format(url)
             self.cur.execute(cmd)
             self.db.commit()
         except pg_driver.Error as e:
-            logging.error('Can\'t insert url ' + url + ' code ' + e.pgcode)
+            logging.error(str(e))
             self.db.rollback()
 
     def get_base(self):
@@ -84,3 +86,17 @@ class DBService:
             except pg_driver.Error as e:
                 logging.warning('Can\'t add to base url ' + url + ' code ' + e.pgcode)
                 self.db.rollback()
+
+    def update_incoming_links(self, links):
+        for p in links:
+            try:
+                self.cur.execute('update storage set '
+                                 'incoming_link = incoming_link + 1 '
+                                 'where url = \'{0}\''.format(p))
+            except pg_driver.Error as e:
+                logging.warning(str(e))
+        try:
+            self.db.commit()
+        except:
+            logging.error("update commit failed")
+            self.db.rollback()
