@@ -14,6 +14,7 @@ class DBService:
         self.cur.execute('create table if not exists urls '
                          '(url text primary key, seen boolean)')
         self.cur.execute('create table if not exists base (url text primary key)')
+        self.cur.execute('create table if not exists disease (name text, degree text)')
         self.db.commit()
 
     def __del__(self):

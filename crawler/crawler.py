@@ -1,6 +1,7 @@
 import argparse
 import logging
 from DBConnect import DBService
+from find_level_disease import FindLevel
 from index import Index
 from spider import Spider
 from urllib.parse import urlparse
@@ -35,10 +36,11 @@ def main():
     logging.basicConfig(filename='./log/crawler.log', level=logging.DEBUG, format=log_format)
     parser = build_parser()
     args = parser.parse_args()
-    db_cursor = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
+    db_service = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
     store = Store(args.root_dir)
     if args.index:
-        index = Index(db_cursor, store, './index')
+        FindLevel(db_service, store).find()
+        index = Index(db_service, store, './index')
         index.create()
         index.serialize('index.ind')
     else:
@@ -50,9 +52,9 @@ def main():
                 logging.warning(str(e))
                 continue
             urls_domain.append(domain.netloc)
-        db_cursor.add_base(urls_domain)
-        db_cursor.add_url(args.urls)
-        Spider(db_cursor, store).spider()
+        db_service.add_base(urls_domain)
+        db_service.add_url(args.urls)
+        Spider(db_service, store).spider()
 
 
 if __name__ == '__main__':

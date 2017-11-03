@@ -1,14 +1,14 @@
 import re
+import pymorphy2
 from nltk.corpus import stopwords
 from bs4 import BeautifulSoup
 import pickle
 import logging
 import os
 from pathlib import Path
-from nltk.stem.snowball import RussianStemmer
 from multiprocessing import Pool
 
-stemmer = RussianStemmer(True)
+morph = pymorphy2.MorphAnalyzer()
 
 
 class Index:
@@ -57,7 +57,7 @@ def pre_process(tuples):
         raw_data = path.read_text()
         raw_data = BeautifulSoup(raw_data, 'lxml').getText()
         words = re.sub(r'[^А-я0-9ёЁ ]', '', raw_data).split()
-        words = [stemmer.stem(word) for word in words if word not in stopwords.words('russian')]
+        words = [morph.parse(word)[0].normal_form for word in words if word not in stopwords.words('russian')]
         result = {}
         for i, word in enumerate(words):
             if word not in result:
