@@ -39,9 +39,9 @@ def main():
     db_service = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
     store = Store(args.root_dir)
     if args.index:
-        FindLevel(db_service, store).find()
+        # FindLevel(db_service, store).find()
         index = Index(db_service, store, './index')
-        index.create()
+        index.create_for_first_latter()
         index.serialize('index.ind')
     else:
         urls_domain = []
