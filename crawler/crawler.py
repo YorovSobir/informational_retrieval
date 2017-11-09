@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 from store import Store
 
 
+
 def build_parser():
     parser = argparse.ArgumentParser(add_help=False, description='Data for database connection')
     parser.add_argument('-h', '--host', default='localhost',
