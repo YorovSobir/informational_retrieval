@@ -1,50 +1,122 @@
-import argparse
+import requests
+from bs4 import BeautifulSoup
+from bs4.dammit import EncodingDetector
+import urllib.parse
 import logging
-from db_service import DBService
-from spider import Spider
-from urllib.parse import urlparse
-
-from store import Store
-
-
-def build_parser():
-    parser = argparse.ArgumentParser(add_help=False, description='Data for database connection')
-    parser.add_argument('-h', '--host', default='localhost',
-                        help='address of postgres server')
-    parser.add_argument('-p', '--port', default='5432',
-                        help='port of postgres server')
-    parser.add_argument('-d', '--database', default='ir_db',
-                        help='database to connect')
-    parser.add_argument('-u', '--user', default='ir_med',
-                        help='user in postgres server')
-    parser.add_argument('--password', default='medicine',
-                        help='password for user in postgres server')
-    parser.add_argument('--urls', nargs='*',
-                        help='base urls where will start')
-    parser.add_argument('--root_dir', default='../data',
-                        help='root directory where we store data')
-    return parser
+import time
+import reppy
+import re
+import os
+import sys
+from utils.utils import url_to_path
 
 
-def main():
-    log_format = '%(asctime) -15s %(levelname)s:%(message)s'
-    logging.basicConfig(filename='./log/crawler.log', level=logging.DEBUG, format=log_format)
-    parser = build_parser()
-    args = parser.parse_args()
-    db_service = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
-    store = Store(args.root_dir)
-    urls_domain = []
-    for url in args.urls:
+class Spider:
+
+    __headers = {'User-Agent': 'MedBot', 'Content-type': 'text/html'}
+    __robots_agent = {}
+    __base_urls = set()
+    __unknown_urls = []
+    __default = 10
+
+    def __init__(self, db_cursor, root_dir):
+        self.__db_cursor = db_cursor
+        self.__root_dir = root_dir
+
+    def get_urls(self, url, delay):
+        time.sleep(delay)
+        result = []
         try:
-            domain = urlparse(url)
+            parsed_url = urllib.parse.urlparse(url)
         except ValueError as e:
             logging.warning(str(e))
-            continue
-        urls_domain.append(domain.netloc)
-    db_service.add_base(urls_domain)
-    db_service.add_url(args.urls)
-    Spider(db_service, store).spider()
+            return result
 
+        if parsed_url.netloc not in self.__base_urls:
+            self.__unknown_urls.append(url)
+            return result
 
-if __name__ == '__main__':
-    main()
+        try:
+            response = requests.get(url, headers=self.__headers)
+            if response.status_code != requests.codes.ok:
+                logging.warning("Invalid status code " + response.status_code)
+                return result
+            http_encoding = response.encoding if 'charset' in response.headers.get('content-type', '').lower() else None
+            html_encoding = EncodingDetector.find_declared_encoding(response.content, is_html=True)
+            encoding = html_encoding or http_encoding
+            soup = BeautifulSoup(response.content, "lxml", from_encoding=encoding)
+            try:
+                self.store(url, response.content.decode(encoding))
+            except FileNotFoundError as e:
+                logging.warning('url = ' + url + ' ' + str(e))
+
+            self.__db_cursor.add_data(url)
+            for tag in soup.find_all('a', href=True):
+                if tag is None:
+                    logging.warning("invalid tag in link " + url)
+                    continue
+                result.append(urllib.parse.urljoin(url, tag['href']))
+            self.__db_cursor.update_incoming_links(result)
+        except requests.exceptions.ReadTimeout:
+            logging.error("Read timeout")
+        except requests.exceptions.ConnectTimeout:
+            logging.error("Connect timeout")
+        except:
+            logging.error("Exception")
+        finally:
+            return result
+
+    def store(self, url, content):
+        full_path = url_to_path(url, self.__root_dir)
+        if full_path == '':
+            return
+        os.makedirs(full_path, exist_ok=True)
+        with open(os.path.join(full_path, 'content.txt'), 'w') as f:
+            f.write(content)
+
+    def process_url(self, url):
+        regex = re.compile(
+            r'^(?:http|ftp)s?://'
+            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'
+            r'localhost|'
+            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
+            r'(?::\d+)?'
+            r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+        m = regex.match(url)
+        if not m:
+            logging.info("Invalid url " + url)
+            return
+        agent = None
+        try:
+            robots_url = reppy.Robots.robots_url(url)
+            if robots_url not in self.__robots_agent:
+                robots = reppy.Robots.fetch(robots_url)
+                agent = robots.agent(self.__headers["User-Agent"])
+                self.__robots_agent[robots_url] = agent
+            agent = self.__robots_agent[robots_url]
+            if not agent.allowed(url):
+                logging.info("Disallow crawling " + url)
+                return
+        except:
+            logging.error("Parse Robot.txt " + url)
+        if agent is None or agent.delay is None:
+            delay = 0.5
+        else:
+            delay = agent.delay
+
+        urls = self.get_urls(url, delay)
+        self.__db_cursor.add_url(urls)
+
+    def run(self):
+        for url in self.__db_cursor.get_base():
+            self.__base_urls.add(url)
+        urls = self.__db_cursor.get_url(self.__default)
+        while urls:
+            for url in urls:
+                self.process_url(url)
+            urls = self.__db_cursor.get_url(self.__default)
+            if not urls and self.__unknown_urls:
+                for url in self.__db_cursor.get_base():
+                    self.__base_urls.add(url)
+                urls = self.__unknown_urls
+                self.__unknown_urls.clear()

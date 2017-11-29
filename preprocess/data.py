@@ -14,6 +14,7 @@ from utils.utils import url_to_path, id_and_path_to_doc
 class Data:
     def __init__(self, db_service, data_dir):
         self.__db_service = db_service
+        self.__db_service.set_unseen()
         self.__data_dir = data_dir
 
     def store(self, url, content):

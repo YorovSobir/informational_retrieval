@@ -1,6 +1,9 @@
 import argparse
 import logging
-from data import Data
+
+import sys
+sys.path.append('..')
+from preprocess.data import Data
 from utils.db_service import DBService
 
 
@@ -21,16 +24,15 @@ def build_parser():
     return parser
 
 
-def main():
+def preprocess(db, data_dir):
     log_format = '%(asctime) -15s %(levelname)s:%(message)s'
     logging.basicConfig(filename='./log/preprocess.log', level=logging.DEBUG, format=log_format)
-    parser = build_parser()
-    args = parser.parse_args()
-    db_service = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
-    data = Data(db_service, args.data_dir)
-    # data.doc_count()
+    data = Data(db, data_dir)
     data.preprocess()
 
 
 if __name__ == '__main__':
-    main()
+    parser = build_parser()
+    args = parser.parse_args()
+    db_service = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
+    preprocess(db_service, args.data_dir)

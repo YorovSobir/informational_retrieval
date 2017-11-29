@@ -2,21 +2,19 @@ import pickle
 import logging
 import os
 from pathlib import Path
-from multiprocessing import Pool, Lock, Manager
+from multiprocessing import Pool
 import multiprocessing
+
 from utils.utils import id_and_path_to_doc
 
 letters = [chr(i) for i in range(ord('а'), ord('я') + 1)]
-# letters.extend([chr(i + 48) for i in range(10)])
 letters.append('ё')
-locks = {key: Lock() for key in letters}
-
-manager = Manager()
 
 
 class Index:
     def __init__(self, db_service, data_dir, index_dir):
         self.__db_service = db_service
+        self.__db_service.set_unseen()
         self.__data_dir = data_dir
         self.__index_dir = index_dir
         self.__common_dict = {key: dict() for key in letters}

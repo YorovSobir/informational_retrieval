@@ -1,9 +1,10 @@
 import argparse
 import logging
+import sys
+sys.path.append('..')
 from utils.db_service import DBService
-from index import Index
-import multiprocessing
-from multiprocessing import Pool
+from index.index import Index
+
 
 def build_parser():
     parser = argparse.ArgumentParser(add_help=False, description='Index for our information retrieval system')
@@ -24,30 +25,18 @@ def build_parser():
     return parser
 
 
-def main():
+def index(db, data_dir, index_dir):
     log_format = '%(asctime) -15s %(levelname)s:%(message)s'
     logging.basicConfig(filename='./log/index.log', level=logging.DEBUG, format=log_format)
+    index_ = Index(db, data_dir, index_dir)
+    index_.build_index()
+    index_.serialize()
+    # index_.deserialize('a.ind')
+
+
+def main():
     parser = build_parser()
     args = parser.parse_args()
     db_service = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
+    index(db_service, args.data_dir, args.index_dir)
 
-    index = Index(db_service, args.data_dir, args.index_dir)
-    index.build_index()
-    index.serialize()
-
-
-manager = multiprocessing.Manager()
-
-
-def f(input):
-    x, l = input
-    l[x] = []
-    l[x].append(x)
-
-
-if __name__ == '__main__':
-    l = manager.dict()
-    with Pool(3) as pool:
-        pool.map(f, [(x, l) for x in range(10)])
-    print(l)
-    # main()

@@ -4,13 +4,13 @@ import logging
 import os
 
 
-def url_to_path(url, data_path):
+def url_to_path(url, data_dir):
     try:
         parsed_url = urllib.parse.urlparse(url)
     except ValueError as e:
-        logging.warning(str(e))
+        logging.warning('exception while parsing url = ' + url + '; ' + str(e))
         return ''
-    full_path = os.path.join(data_path, parsed_url.netloc) + parsed_url.path
+    full_path = os.path.join(data_dir, parsed_url.netloc) + parsed_url.path
     full_path = re.sub(r'[<>|:&\s\\;()]', '', full_path)
     return full_path
 
