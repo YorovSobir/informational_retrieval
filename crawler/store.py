@@ -9,19 +9,17 @@ class Store:
         self.__root_path = root_path
 
     def store(self, url, content):
-        fullpath = self.url_to_path(url)
-        if fullpath == '':
+        try:
+            full_path = self.url_to_path(url)
+        except ValueError as e:
+            logging.warning('error in url to path ' + str(e))
             return
-        os.makedirs(fullpath, exist_ok=True)
-        with open(os.path.join(fullpath, 'content.txt'), 'w') as f:
+        os.makedirs(full_path, exist_ok=True)
+        with open(os.path.join(full_path, 'content.txt'), 'w') as f:
             f.write(content)
 
     def url_to_path(self, url):
-        try:
-            parsed_url = urllib.parse.urlparse(url)
-        except ValueError as e:
-            logging.warning(str(e))
-            return ''
-        fullpath = os.path.join(self.__root_path, parsed_url.netloc) + parsed_url.path
-        fullpath = re.sub(r'[<>|:&\s\\;()]', '', fullpath)
-        return fullpath
+        parsed_url = urllib.parse.urlparse(url)
+        full_path = os.path.join(self.__root_path, parsed_url.netloc) + parsed_url.path
+        full_path = re.sub(r'[<>|:&\s\\;()]', '', full_path)
+        return full_path

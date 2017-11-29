@@ -44,8 +44,9 @@ class Spider:
             soup = BeautifulSoup(response.content, "lxml", from_encoding=encoding)
             try:
                 self.__store.store(url, response.content.decode(encoding))
-            except:
-                logging.error("cannot write to file content of " + url)
+            except FileNotFoundError as e:
+                logging.warning('url = ' + url + ' ' + str(e))
+
             self.__db_cursor.add_data(url)
             for tag in soup.find_all('a', href=True):
                 if tag is None:
