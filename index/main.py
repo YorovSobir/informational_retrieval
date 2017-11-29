@@ -32,7 +32,7 @@ def main():
 
     index = Index(db_service, args.data_dir, args.index_dir)
     index.build_index()
-    index.serialize('index.ind')
+    index.serialize()
 
 
 if __name__ == '__main__':

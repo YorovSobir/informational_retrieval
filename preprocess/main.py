@@ -28,6 +28,7 @@ def main():
     args = parser.parse_args()
     db_service = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
     data = Data(db_service, args.data_dir)
+    # data.doc_count()
     data.preprocess()
 
 

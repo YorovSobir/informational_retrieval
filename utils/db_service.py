@@ -16,22 +16,10 @@ class DBService:
     def __del__(self):
         self.db.close()
 
-    def get_id_and_url(self, n=25000):
+    def get_id_and_url(self):
         cur = self.db.cursor()
-        cur.execute('select id, url from storage where seen = false limit {0} for update'.format(n))
+        cur.execute('select id, url from storage')
         result = cur.fetchall()
-        for p in result:
-            try:
-                cur.execute('update storage set seen = true where id = \'{0}\''.format(p[0]))
-            except pg_driver.Error:
-                logging.warning("unexpected failed: cannot change seen field for " + str(p[0]))
-        try:
-            self.db.commit()
-        except:
-            logging.error("commit failed")
-            self.db.rollback()
-            return []
-
         return result
 
     def set_unseen(self):
