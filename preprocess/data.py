@@ -31,6 +31,27 @@ class Data:
                 p.map(clean_doc, id_and_path)
                 id_and_path = id_and_path_to_doc(self.__data_dir, self.__db_service)
 
+    def doc_count(self):
+        id_and_path = id_and_path_to_doc(self.__data_dir, self.__db_service)
+        result = {}
+        while id_and_path:
+            for id, full_path in id_and_path:
+                try:
+                    with open(os.path.join(full_path, 'words'), 'rb') as f:
+                        unpickler = pickle.Unpickler(f)
+                        try:
+                            result[id] = len(unpickler.load())
+                        except EOFError:
+                            result[id] = 0
+                except:
+                    result[id] = 0
+            id_and_path = id_and_path_to_doc(self.__data_dir, self.__db_service)
+        with open(os.path.join(self.__data_dir, 'count'), 'wb') as f:
+            try:
+                pickle.dump(result, f)
+            except pickle.PicklingError as e:
+                logging.error(str(e))
+
 
 morph = pymorphy2.MorphAnalyzer()
 
@@ -39,7 +60,7 @@ def clean_doc(document):
     idx, full_path = document
     path = Path(os.path.join(full_path, 'content.txt'))
     if path.exists():
-        raw_data = path.read_text()
+        raw_data = path.read_text(encoding='utf-8')
         raw_data = BeautifulSoup(raw_data, 'lxml').getText()
         words = re.sub(r'[^А-я0-9ёЁ ]', '', raw_data).split()
         words = [morph.parse(word)[0].normal_form for word in words if word not in stopwords.words('russian')]
@@ -50,3 +71,4 @@ def clean_doc(document):
                 logging.error(str(e))
     else:
         logging.warning("file not found: " + os.path.join(full_path, 'content.txt'))
+
