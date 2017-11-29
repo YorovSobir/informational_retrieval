@@ -1,6 +1,6 @@
 import argparse
 import logging
-from DBConnect import DBService
+from db_service import DBService
 from spider import Spider
 from urllib.parse import urlparse
 
