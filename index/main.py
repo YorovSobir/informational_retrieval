@@ -2,7 +2,8 @@ import argparse
 import logging
 from utils.db_service import DBService
 from index import Index
-
+import multiprocessing
+from multiprocessing import Pool
 
 def build_parser():
     parser = argparse.ArgumentParser(add_help=False, description='Index for our information retrieval system')
@@ -35,5 +36,18 @@ def main():
     index.serialize('index.ind')
 
 
+manager = multiprocessing.Manager()
+
+
+def f(input):
+    x, l = input
+    l[x] = []
+    l[x].append(x)
+
+
 if __name__ == '__main__':
-    main()
+    l = manager.dict()
+    with Pool(3) as pool:
+        pool.map(f, [(x, l) for x in range(10)])
+    print(l)
+    # main()
