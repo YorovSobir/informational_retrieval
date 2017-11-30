@@ -20,7 +20,7 @@ def build_parser():
                         help='password for user in postgres server')
     parser.add_argument('--data_dir', default='../data',
                         help='directory where we store data')
-    parser.add_argument('--index_dir', default='./index',
+    parser.add_argument('--index_dir', default='../index2',
                         help='directory where we store index')
     return parser
 

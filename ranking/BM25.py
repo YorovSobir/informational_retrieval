@@ -5,7 +5,6 @@ import re
 from nltk.corpus import stopwords
 import math
 import pickle
-from pathlib import Path
 import os
 import logging
 import heapq
@@ -31,17 +30,20 @@ class BM25:
         words = re.sub(r'[^А-яёЁ ]', ' ', q).split()
         words = [self.morph.parse(word)[0].normal_form for word in words
                  if word and word not in stopwords.words('russian')]
-        heap = {key: 0.0 for key in self.doc.keys()}
+        heap = {}
         start = time()
+        idf = {}
         for word in words:
             if not self.ind[word[0]]:
                 self.ind[word[0]] = self.__load_ind_for_letter(word[0])
-            idf = self.__idf(word)
-            for doc_id in self.doc:
+            idf[word] = self.__idf(word)
+        for doc_id in self.doc:
+            bm25 = 0.0
+            for word in words:
                 tf = self.__TF(word, doc_id)
-                heap[doc_id] += idf * (tf * (self.k1 + 1)) / (tf + self.k1 * (1 - self.b + self.b * self.__word_count(doc_id) / self.avg))
-        end = time()
-        print(end - start)
+                bm25 += idf[word] * (tf * (self.k1 + 1)) / (tf + self.k1 * (1 - self.b + self.b * self.__word_count(doc_id) / self.avg))
+            heap[doc_id] = bm25
+        print(time() - start)
         return heapq.nlargest(count, heap, key=heap.get)
 
     def __avgdl(self):

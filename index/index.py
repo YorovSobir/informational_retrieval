@@ -24,8 +24,8 @@ class Index:
             for key, value in elem.items():
                 for word, positions in value.items():
                     if word not in self.__common_dict[key]:
-                        self.__common_dict[key][word] = []
-                    self.__common_dict[key][word].append((id_and_path[idx][0], positions))
+                        self.__common_dict[key][word] = {}
+                    self.__common_dict[key][word][id_and_path[idx][0]] = positions
 
     def build_index(self):
         id_and_path = id_and_path_to_doc(self.__data_dir, self.__db_service)
