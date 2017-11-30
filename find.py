@@ -17,9 +17,9 @@ def build_parser():
                         help='user in postgres server')
     parser.add_argument('--password', default='medicine',
                         help='password for user in postgres server')
-    parser.add_argument('--index_dir', default='./index',
+    parser.add_argument('--index_dir', default='./index2',
                         help='directory where we store index')
-    parser.add_argument('--data_dir', default='../data',
+    parser.add_argument('--data_dir', default='./data',
                         help='directory where we store data')
     return parser
 
@@ -55,7 +55,7 @@ class Find:
 
 def main():
     log_format = '%(asctime) -15s %(levelname)s:%(message)s'
-    logging.basicConfig(filename='./log/preprocess.log', level=logging.DEBUG, format=log_format)
+    logging.basicConfig(filename='./log/find.log', level=logging.DEBUG, format=log_format)
     parser = build_parser()
     args = parser.parse_args()
     db_service = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
@@ -63,6 +63,7 @@ def main():
     # data = [url_to_path(url, args.data_dir) + 'words' for _, url in result]
     f = Find(db_service, args.index_dir, args.data_dir)
     print(f.find('Сильно болит голова'))
+
 
 if __name__ == "__main__":
     main()
