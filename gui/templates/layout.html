@@ -1,0 +1,55 @@
+
+<html>
+        <head lang="ru">
+            <meta charset="UTF-8">
+            <link rel="stylesheet" type="text/css" href="css/main.css">
+            <script type='text/javascript' src="js/main.js"></script>
+        </head>
+        <body>
+        <input id="panel-1-ctrl"
+        class="panel-radios" type="radio" name="tab-radios" checked>
+        <input id="panel-2-ctrl"
+        class="panel-radios" type="radio" name="tab-radios" visibil>
+        
+        <header id="introduction">
+        
+        <div class="search-wrapper">
+                <div class="input-holder">
+                    <input type="text" class="search-input" placeholder="Type to search" />
+                    <button class="search-icon" onclick="searchToggle(this, event);"><span></span></button>
+                </div>
+                <span class="close" onclick="searchToggle(this, event);"></span>
+            </div>
+        </header>
+        <!-- TABS LIST -->
+        <ul id="tabs-list">
+        <!-- MENU TOGGLE -->
+        <label id="open-nav-label" for="nav-ctrl"></label>
+        <li id="li-for-panel-1">
+        <label class="panel-label"
+              for="panel-1-ctrl">Карточки</label>
+        </li><!--INLINE-BLOCK FIX
+        --><li id="li-for-panel-2">
+        <label class="panel-label"
+              for="panel-2-ctrl">Ранжированный список</label>
+        </li>
+        <label id="close-nav-label" for="nav-ctrl">Close</label>
+        </ul>
+        
+        <!-- THE PANELS -->
+        <article id="panels">
+        <div class="container">
+        <section id="panel-1">
+        <main>
+                
+        </main>
+        </section>
+        <section id="panel-2">
+        <main>
+         <h1>Input :checked</h1>
+        </main>
+        </section>
+        </div>
+        </article>
+        </body>
+        </html>

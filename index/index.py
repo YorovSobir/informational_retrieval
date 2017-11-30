@@ -65,10 +65,11 @@ def index(data_input):
                 logging.error(str(e))
             for i, word in enumerate(words):
                 if word:
-                    dict_letter = dicts[word[0]]
-                    if word not in dict_letter:
-                        dict_letter[word] = 0
-                    dict_letter[word] += 1
+                    if word[0] in dicts:
+                        dict_letter = dicts[word[0]]
+                        if word not in dict_letter:
+                            dict_letter[word] = 0
+                        dict_letter[word] += 1
     else:
         logging.warning("cannot find file " + full_path)
     return dicts
