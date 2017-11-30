@@ -91,9 +91,6 @@ class BM25:
         return count
 
     def __TF(self, word, doc):
-        let = word[0]
-        l = self.ind[let][word]
-        for i in l:
-            if i[0] == doc:
-                return i[1]
-        return 0
+        if doc not in self.ind[word[0]][word]:
+            return 0
+        return self.ind[word[0]][word][doc]
