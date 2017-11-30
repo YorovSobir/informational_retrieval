@@ -32,25 +32,25 @@ class Find:
 
     def find(self, q):
         docs = self.bm25.get_documents(q, 10)
-        result = []
-        for doc in docs:
-            cmd = """            
-                    SELECT
-                      DT.disease,
-                      DT.treatment,
-                      T.l_val
-                    FROM (SELECT
-                            D.val AS d_val,
-                            L.val AS l_val
-                          FROM disease_levels AS DL
-                            JOIN disease AS D ON DL.id_disease = D.id
-                            JOIN levels AS L ON DL.id_level = L.id) AS T
-                      RIGHT JOIN disease_treatment AS DT ON LOWER(DT.disease) = LOWER(T.d_val)
-                    WHERE DT.id_document={0}
-                   """.format(doc)
-            self.cur.execute(cmd)
-            result.append(self.cur.fetchall())
-        return result
+        # result = []
+        # for doc in docs:
+        #     cmd = """
+        #             SELECT
+        #               DT.disease,
+        #               DT.treatment,
+        #               T.l_val
+        #             FROM (SELECT
+        #                     D.val AS d_val,
+        #                     L.val AS l_val
+        #                   FROM disease_levels AS DL
+        #                     JOIN disease AS D ON DL.id_disease = D.id
+        #                     JOIN levels AS L ON DL.id_level = L.id) AS T
+        #               RIGHT JOIN disease_treatment AS DT ON LOWER(DT.disease) = LOWER(T.d_val)
+        #             WHERE DT.id_document={0}
+        #            """.format(doc)
+        #     self.cur.execute(cmd)
+        #     result.append(self.cur.fetchall())
+        return docs
 
 
 def main():
@@ -60,9 +60,9 @@ def main():
     args = parser.parse_args()
     db_service = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
     result = db_service.get_id_and_url()
-    data = [url_to_path(url, args.data_dir) + 'words' for _, url in result]
-    f = Find(db_service, args.index_dir, data)
-    f.find('Сильно болит голова')
+    # data = [url_to_path(url, args.data_dir) + 'words' for _, url in result]
+    f = Find(db_service, args.index_dir, args.data_dir)
+    print(f.find('Сильно болит голова'))
 
 if __name__ == "__main__":
     main()
