@@ -31,7 +31,6 @@ class BM25:
         words = [self.morph.parse(word)[0].normal_form for word in words
                  if word and word not in stopwords.words('russian')]
         heap = {}
-        start = time()
         idf = {}
         for word in words:
             if not self.ind[word[0]]:
@@ -43,8 +42,7 @@ class BM25:
                 tf = self.__TF(word, doc_id)
                 bm25 += idf[word] * (tf * (self.k1 + 1)) / (tf + self.k1 * (1 - self.b + self.b * self.__word_count(doc_id) / self.avg))
             heap[doc_id] = bm25
-        print(time() - start)
-        return heapq.nlargest(count, heap, key=heap.get)
+        return heapq.nlargest(len(heap), heap, key=heap.get)
 
     def __avgdl(self):
         self.avg = 0

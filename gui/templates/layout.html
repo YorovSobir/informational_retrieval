@@ -2,54 +2,107 @@
 <html>
     <head lang="ru">
         <meta charset="UTF-8">
-        <link rel="stylesheet" type="text/css"  href="{{ url_for('static', filename='css/main.css') }}">
-        <script type="text/javascript" src="{{ url_for('static', filename = 'js/main.js') }}"></script>
+        <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <style>
+            body {
+                margin-top:20px;
+            }
+            .bs-callout {
+                -moz-border-bottom-colors: none;
+                -moz-border-left-colors: none;
+                -moz-border-right-colors: none;
+                -moz-border-top-colors: none;
+                border-color: #eee;
+                border-image: none;
+                border-radius: 3px;
+                border-style: solid;
+                border-width: 1px 1px 1px 5px;
+                margin-bottom: 5px;
+                padding: 20px;
+            }
+            .bs-callout:last-child {
+                margin-bottom: 0px;
+            }
+            .bs-callout h4 {
+                margin-bottom: 10px;
+                margin-top: 0;
+            }
+
+            .bs-callout-danger {
+                border-left-color: #fd1915;
+            }
+
+            .bs-callout-middle {
+                border-left-color: #f8b05e;
+            }
+
+            .bs-callout-low {
+                border-left-color: #7ef021;
+            }
+
+            .bs-callout-middle h4 {
+                color: #f8b05e;
+            }
+
+            .bs-callout-nothing {
+                border-left-color: #818181;
+            }
+
+            .bs-callout-low h4{
+                color: #7ef021;
+            }
+
+            .bs-callout-danger h4{
+                color: #fd1915;
+            }
+
+            .bs-callout-nothing h4{
+                color: #818181;
+            }
+        </style>
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <script>
+            $(document).ready(function(e){
+                $('.search-panel .dropdown-menu').find('a').click(function(e) {
+                    e.preventDefault();
+                    var param = $(this).attr("href").replace("#","");
+                    var concept = $(this).text();
+                    $('.search-panel span#search_concept').text(concept);
+                    $('.input-group #search_param').val(param);
+                });
+            });
+        </script>
     </head>
     <body>
-        <input id="panel-1-ctrl"
-        class="panel-radios" type="radio" name="tab-radios" checked>
-        <input id="panel-2-ctrl"
-        class="panel-radios" type="radio" name="tab-radios" visibil>
-
-        <header id="introduction">
-
-        <div class="search-wrapper">
-                <div class="input-holder">
-                    <input type="text" class="search-input" placeholder="Type to search" />
-                    <button class="search-icon" onclick="searchToggle(this, event);"><span></span></button>
-                </div>
-                <span class="close" onclick="searchToggle(this, event);"></span>
-            </div>
-        </header>
-        <!-- TABS LIST -->
-        <ul id="tabs-list">
-        <!-- MENU TOGGLE -->
-        <label id="open-nav-label" for="nav-ctrl"></label>
-        <li id="li-for-panel-1">
-        <label class="panel-label"
-              for="panel-1-ctrl">Карточки</label>
-        </li><!--INLINE-BLOCK FIX
-        --><li id="li-for-panel-2">
-        <label class="panel-label"
-              for="panel-2-ctrl">Ранжированный список</label>
-        </li>
-        <label id="close-nav-label" for="nav-ctrl">Close</label>
-        </ul>
-
-        <!-- THE PANELS -->
-        <article id="panels">
         <div class="container">
-        <section id="panel-1">
-        <main>
-
-        </main>
-        </section>
-        <section id="panel-2">
-        <main>
-         <h1>Input :checked</h1>
-        </main>
-        </section>
+            <div class="row">
+                <div class="col-xs-8 col-xs-offset-2">
+                    <div class="input-group">
+                        <div class="input-group-btn search-panel">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                <span id="search_concept">Отображение</span> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                              <li><a href="#card">Карточки</a></li>
+                              <li><a href="#list">Список</a></li>
+                            </ul>
+                        </div>
+                        <input type="hidden" name="search_param" value="all" id="search_param">
+                        <input type="text" class="form-control" name="x" placeholder="Поиск...">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
-        </article>
+        <div class="container" style="margin-top: 3%;">
+            {% block card %}{% endblock %}
+        </div>
+
     </body>
 </html>

@@ -70,6 +70,8 @@ def index(data_input):
                         if word not in dict_letter:
                             dict_letter[word] = 0
                         dict_letter[word] += 1
+                    else:
+                        logging.warning('not in dict ' + word)
     else:
         logging.warning("cannot find file " + full_path)
     return dicts
