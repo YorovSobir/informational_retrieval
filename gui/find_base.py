@@ -27,16 +27,18 @@ class Find:
         docs = self.bm25.get_documents(query)
         result = []
         for doc in docs:
+            if doc == 13123:
+                print("d")
             if doc in self.docs_disease:
                 cmd = """
                         SELECT
                           ST.url,
                           DT.disease,
                           DT.treatment,
-                          T.l_val
+                          T.id
                         FROM (SELECT
                                 D.val AS d_val,
-                                L.val AS l_val
+                                L.id AS id
                               FROM disease_levels AS DL
                                 JOIN disease AS D ON DL.id_disease = D.id
                                 JOIN levels AS L ON DL.id_level = L.id) AS T
