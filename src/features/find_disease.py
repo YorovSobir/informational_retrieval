@@ -17,6 +17,23 @@ class Parser:
         elif self.__base == 'www.genesha.ru/diseases/':
             return self.__parse_genesha(html)
 
+    def get_tag_text(self, tag):
+        if len(tag.contents) == 1:
+            return tag.string
+        return '\n'.join(self.get_tag_text(t) for t in tag)
+
+    def parse_tag(self, tag, tags):
+        result = ''
+        for t in tags:
+                if 'лечение' in t.string.lower():
+                    for t_in in t.next_siblings:
+                        if t_in.name == tag:
+                            break
+                        elif t_in.name == 'p':
+                            result += '\n' + self.get_tag_text(t_in)
+                        elif t_in != '\n':
+                            break
+
     def __parse_likar(self, html):
         soup = BeautifulSoup(html, "lxml")
         title = soup.find_all('h1', {"class": "article-title"})[0]

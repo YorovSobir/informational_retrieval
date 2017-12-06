@@ -5,7 +5,8 @@ from pathlib import Path
 from multiprocessing import Pool
 import multiprocessing
 
-from utils.utils import id_and_path_to_doc
+from utils.db_service import DBService
+from utils.utils import id_and_path_to_doc, build_parser
 
 letters = [chr(i) for i in range(ord('а'), ord('я') + 1)]
 letters.append('ё')
@@ -31,7 +32,7 @@ class Index:
         id_and_path = id_and_path_to_doc(self.__data_dir, self.__db_service)
         with Pool(multiprocessing.cpu_count()) as p:
             while id_and_path:
-                result = p.map(index, id_and_path)
+                result = p.map(index_multiprocess, id_and_path)
                 self.merge(id_and_path, result)
                 id_and_path = id_and_path_to_doc(self.__data_dir, self.__db_service)
 
@@ -51,7 +52,7 @@ class Index:
                 logging.error(str(e))
 
 
-def index(data_input):
+def index_multiprocess(data_input):
     idx, path_str = data_input
     full_path = os.path.join(path_str, 'words')
     path = Path(full_path)
@@ -75,3 +76,16 @@ def index(data_input):
     else:
         logging.warning("cannot find file " + full_path)
     return dicts
+
+
+def index(db, data_dir, index_dir):
+    index_ = Index(db, data_dir, index_dir)
+    index_.build_index()
+    index_.serialize()
+
+
+if __name__ == '__main__':
+    parser = build_parser()
+    args = parser.parse_args()
+    db_service = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
+    index(db_service, args.data_dir, args.index_dir)

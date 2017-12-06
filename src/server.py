@@ -5,14 +5,8 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    from find_base import get_cards
-    result = get_cards("сыпь на голове температура")
-    temp = result[0]
-    result[0] = result[4]
-    result[4] = temp
-    temp = result[1]
-    result[1] = result[9]
-    result[9] = temp
+    from find import cards
+    result = cards("сыпь на голове температура")
     divs = ['<div style="display: flex;" class="row bs-callout ' for _ in result]
     for i, res in enumerate(result):
         if res[0][3] == 1:

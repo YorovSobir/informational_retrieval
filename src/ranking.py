@@ -1,13 +1,11 @@
-from time import time
-
 import pymorphy2
-import re
-from nltk.corpus import stopwords
 import math
 import pickle
 import os
 import logging
 import heapq
+
+from utils.utils import preprocess_text
 
 letters = [chr(i) for i in range(ord('а'), ord('я') + 1)]
 letters.append('ё')
@@ -24,12 +22,9 @@ class BM25:
         self.morph = pymorphy2.MorphAnalyzer()
         self.doc = {}
         self.avg = self.__avgdl()
-        # self.__load_ind()
 
-    def get_documents(self, q, count=10):
-        words = re.sub(r'[^А-яёЁ ]', ' ', q).split()
-        words = [self.morph.parse(word)[0].normal_form for word in words
-                 if word and word not in stopwords.words('russian')]
+    def ranked_docs(self, q):
+        words = preprocess_text(q)
         heap = {}
         idf = {}
         for word in words:
@@ -39,7 +34,7 @@ class BM25:
         for doc_id in self.doc:
             bm25 = 0.0
             for word in words:
-                tf = self.__TF(word, doc_id)
+                tf = self.__tf(word, doc_id)
                 bm25 += idf[word] * (tf * (self.k1 + 1)) / (tf + self.k1 * (1 - self.b + self.b * self.__word_count(doc_id) / self.avg))
             heap[doc_id] = bm25
         return heapq.nlargest(len(heap), heap, key=heap.get)
@@ -60,7 +55,7 @@ class BM25:
         return self.doc[i]
 
     def __idf(self, word):
-        return math.log2(self.__N() / self.__n(word))
+        return math.log2(self.__n() / self.__nw(word))
 
     def __load_ind_for_letter(self, letter):
         with open(os.path.join(self.index_dir, letter + '.ind'), 'rb') as f:
@@ -77,18 +72,16 @@ class BM25:
                 except pickle.PicklingError as e:
                     logging.error(str(e))
 
-    def __N(self):
+    def __n(self):
         return len(self.doc.keys())
 
-    def __n(self, word):
+    def __nw(self, word):
         let = word[0]
-        try:
-            count = len(self.ind[let][word])
-        except:
-            count = 0
-        return count
+        if self.ind[let][word]:
+            return len(self.ind[let][word])
+        return 0
 
-    def __TF(self, word, doc):
+    def __tf(self, word, doc):
         if doc not in self.ind[word[0]][word]:
             return 0
         return self.ind[word[0]][word][doc]

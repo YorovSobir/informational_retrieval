@@ -6,36 +6,41 @@ import logging
 import time
 import reppy
 import re
-import os
-import sys
-from utils.utils import url_to_path
+
+from utils.db_service import DBService
+from utils.utils import store, build_parser
 
 
-class Spider:
+class Crawler:
 
     __headers = {'User-Agent': 'MedBot', 'Content-type': 'text/html'}
     __robots_agent = {}
-    __base_urls = set()
-    __unknown_urls = []
+    __base_urls = []
     __default = 10
 
-    def __init__(self, db_cursor, root_dir):
-        self.__db_cursor = db_cursor
-        self.__root_dir = root_dir
+    def __init__(self, db_service, data_dir):
+        self.__db_service = db_service
+        self.__data_dir = data_dir
 
     def get_urls(self, url, delay):
         time.sleep(delay)
         result = []
-        try:
-            parsed_url = urllib.parse.urlparse(url)
-        except ValueError as e:
-            logging.warning(str(e))
+        # try:
+        #     parsed_url = urllib.parse.urlparse(url)
+        # except ValueError as e:
+        #     logging.warning(str(e))
+        #     return result
+        #
+        # if parsed_url.netloc not in self.__base_urls:
+        #     logging.info('url = ' + parsed_url.netloc + ' are not in base')
+        #     return result
+        from_based_urls = False
+        for base_url in self.__base_urls:
+            if base_url in url:
+                from_based_urls = True
+        if not from_based_urls:
+            logging.warning('url = ' + url + ' are not from base')
             return result
-
-        if parsed_url.netloc not in self.__base_urls:
-            self.__unknown_urls.append(url)
-            return result
-
         try:
             response = requests.get(url, headers=self.__headers)
             if response.status_code != requests.codes.ok:
@@ -46,33 +51,25 @@ class Spider:
             encoding = html_encoding or http_encoding
             soup = BeautifulSoup(response.content, "lxml", from_encoding=encoding)
             try:
-                self.store(url, response.content.decode(encoding))
+                store(self.__data_dir, url, response.content.decode(encoding))
+                self.__db_service.add_data(url)
             except FileNotFoundError as e:
                 logging.warning('url = ' + url + ' ' + str(e))
 
-            self.__db_cursor.add_data(url)
             for tag in soup.find_all('a', href=True):
                 if tag is None:
                     logging.warning("invalid tag in link " + url)
                     continue
                 result.append(urllib.parse.urljoin(url, tag['href']))
-            self.__db_cursor.update_incoming_links(result)
+            self.__db_service.update_incoming_links(result)
         except requests.exceptions.ReadTimeout:
             logging.error("Read timeout")
         except requests.exceptions.ConnectTimeout:
             logging.error("Connect timeout")
         except:
-            logging.error("Exception")
+            logging.error("Exception while parsed url = " + url)
         finally:
             return result
-
-    def store(self, url, content):
-        full_path = url_to_path(url, self.__root_dir)
-        if full_path == '':
-            return
-        os.makedirs(full_path, exist_ok=True)
-        with open(os.path.join(full_path, 'content.txt'), 'w') as f:
-            f.write(content)
 
     def process_url(self, url):
         regex = re.compile(
@@ -105,18 +102,34 @@ class Spider:
             delay = agent.delay
 
         urls = self.get_urls(url, delay)
-        self.__db_cursor.add_url(urls)
+        self.__db_service.add_url(urls)
 
     def run(self):
-        for url in self.__db_cursor.get_base():
-            self.__base_urls.add(url)
-        urls = self.__db_cursor.get_url(self.__default)
+        self.__base_urls = [url for url in self.__db_service.get_base()]
+        urls = self.__db_service.get_url(self.__default)
         while urls:
             for url in urls:
                 self.process_url(url)
-            urls = self.__db_cursor.get_url(self.__default)
-            if not urls and self.__unknown_urls:
-                for url in self.__db_cursor.get_base():
-                    self.__base_urls.add(url)
-                urls = self.__unknown_urls
-                self.__unknown_urls.clear()
+            urls = self.__db_service.get_url(self.__default)
+
+
+def crawler(db, urls, data_dir):
+    # urls_domain = []
+    # for url in urls:
+    #     try:
+    #         domain = urllib.parse.urlparse(url)
+    #     except ValueError as e:
+    #         logging.warning(str(e))
+    #         continue
+    #     urls_domain.append(domain.netloc)
+    db.add_base(urls)
+    db.add_url(urls)
+    Crawler(db, data_dir).run()
+
+
+if __name__ == '__main__':
+    parser = build_parser()
+    args = parser.parse_args()
+    db = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
+    crawler(db, args.urls, args.data_dir)
+

@@ -1,14 +1,13 @@
 import os
-import pymorphy2
 from bs4 import BeautifulSoup
 from multiprocessing import Pool
 import multiprocessing
 from pathlib import Path
-import re
-from nltk.corpus import stopwords
 import pickle
 import logging
-from utils.utils import url_to_path, id_and_path_to_doc
+
+from utils.db_service import DBService
+from utils.utils import id_and_path_to_doc, preprocess_text, build_parser
 
 
 class Data:
@@ -16,14 +15,6 @@ class Data:
         self.__db_service = db_service
         self.__db_service.set_unseen()
         self.__data_dir = data_dir
-
-    def store(self, url, content):
-        full_path = url_to_path(self.__data_dir, url)
-        if full_path == '':
-            return
-        os.makedirs(full_path, exist_ok=True)
-        with open(os.path.join(full_path, 'content.txt'), 'w') as f:
-            f.write(content)
 
     def preprocess(self):
         id_and_path = id_and_path_to_doc(self.__data_dir, self.__db_service)
@@ -54,17 +45,13 @@ class Data:
                 logging.error(str(e))
 
 
-morph = pymorphy2.MorphAnalyzer()
-
-
 def clean_doc(document):
     idx, full_path = document
     path = Path(os.path.join(full_path, 'content.txt'))
     if path.exists():
         raw_data = path.read_text(encoding='utf-8')
         raw_data = BeautifulSoup(raw_data, 'lxml').getText()
-        words = re.sub(r'[^А-я0-9ёЁ ]', '', raw_data).split()
-        words = [morph.parse(word)[0].normal_form for word in words if word not in stopwords.words('russian')]
+        words = preprocess_text(raw_data)
         with open(os.path.join(full_path, 'words'), 'wb') as f:
             try:
                 pickle.dump(words, f)
@@ -73,3 +60,13 @@ def clean_doc(document):
     else:
         logging.warning("file not found: " + os.path.join(full_path, 'content.txt'))
 
+
+def preprocess(db, data_dir):
+    Data(db, data_dir).preprocess()
+
+
+if __name__ == '__main__':
+    parser = build_parser()
+    args = parser.parse_args()
+    db_service = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
+    preprocess(db_service, args.data_dir)

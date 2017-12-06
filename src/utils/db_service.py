@@ -14,10 +14,14 @@ class DBService:
         cur.execute('create table if not exists urls '
                     '(url text primary key, seen boolean)')
         cur.execute('create table if not exists base (url text primary key)')
-        cur.execute('create table if not exists disease (id INTEGER PRIMARY KEY, val text)')
-        cur.execute('create table if not exists doc_disease_treatment (document_id INTEGER REFERENCES storage(id), disease_id INTEGER REFERENCES disease(id), treatment TEXT)')
-        cur.execute('create table if not exists levels (id INTEGER PRIMARY KEY, val text)')
-        cur.execute('create table if not exists disease_levels (disease_id INTEGER REFERENCES disease(id), level_id INTEGER REFERENCES levels(id))')
+        cur.execute('create table if not exists disease (id SERIAL PRIMARY KEY, val text)')
+        cur.execute('create table if not exists doc_disease_treatment '
+                    '(document_id INTEGER REFERENCES storage(id), '
+                    'disease_id INTEGER REFERENCES disease(id), treatment TEXT)')
+        cur.execute('create table if not exists levels (id SERIAL PRIMARY KEY, val text)')
+        cur.execute('create table if not exists disease_levels '
+                    '(disease_id INTEGER REFERENCES disease(id), '
+                    'level_id INTEGER REFERENCES levels(id))')
         self.db.commit()
 
     def __del__(self):
@@ -127,6 +131,3 @@ class DBService:
         except:
             logging.error("update commit failed")
             self.db.rollback()
-
-if __name__ == '__main__':
-    DBService(user='ir_med', password='medicine', host='localhost', dbname='ir_db')
