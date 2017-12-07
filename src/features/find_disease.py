@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag, NavigableString
 from pathlib import Path
 import os
 from DBConnect import DBService
@@ -18,86 +18,41 @@ class Parser:
             return self.__parse_genesha(html)
 
     def get_tag_text(self, tag):
-        if len(tag.contents) == 1:
+        if tag.string:
             return tag.string
         return '\n'.join(self.get_tag_text(t) for t in tag)
 
-    def parse_tag(self, tag, tags):
+    def get_treatment(self, tag):
         result = ''
-        for t in tags:
-                if 'лечение' in t.string.lower():
-                    for t_in in t.next_siblings:
-                        if t_in.name == tag:
-                            break
-                        elif t_in.name == 'p':
-                            result += '\n' + self.get_tag_text(t_in)
-                        elif t_in != '\n':
-                            break
+        for t in tag.next_siblings:
+            if isinstance(t, Tag) and t.name == tag.name and not result:
+                break
+            result += self.get_tag_text(t)
+        return result
+
+    def parse_treatment(self, tag):
+        result = ''
+        if isinstance(tag, Tag):
+            for t in tag.contents:
+                if isinstance(t, NavigableString) and 'лечение' in t.lower():
+                    result += self.get_treatment(tag)
+                elif isinstance(t, Tag):
+                    for t2 in t.contents:
+                        if (isinstance(t2, NavigableString) and 'лечение' in t2.lower()) or \
+                                (t2.string and 'лечение' in t2.string.lower()):
+                            result += self.get_treatment(tag)
+
+        return result
 
     def __parse_likar(self, html):
         soup = BeautifulSoup(html, "lxml")
         title = soup.find_all('h1', {"class": "article-title"})[0]
+        # title = soup.head.title
         result = ''
-        for h2 in soup.find_all('h2'):
-            try:
-                if 'лечение' in h2.text.lower():
-                    for tag in h2.next_siblings:
-                        if tag.name == 'h2':
-                            break
-                        elif tag.name == 'p':
-                            result += tag.text
-                        elif tag != '\n':
-                            break
-            except:
-                print(h2)
-        if result == '':
-            for h3 in soup.find_all('h3'):
-                try:
-                    if 'лечение' in h3.text.lower():
-                        for tag in h3.next_siblings:
-                            if tag.name == 'h2':
-                                break
-                            elif tag.name == 'p':
-                                result += tag.text
-                            elif tag != '\n':
-                                break
-                except:
-                    print(h3)
-        if result == '':
-            for h3 in soup.find_all('p'):
-                try:
-                    if 'лечение' == h3.next.text.lower():
-                        for tag in h3.next_siblings:
-                            if tag.name == 'p' and h3.text.lower() != 'осложнения':
-                                result += tag.text
-                            elif tag != '\n':
-                                break
-                except:
-                    pass
-        if result == '':
-            for h3 in soup.find_all('p'):
-                try:
-                    if 'лечение' in h3.next.text.lower():
-                        for tag in h3.next_siblings:
-                            if tag.name == 'p' and h3.text.lower() != 'осложнения':
-                                result += tag.text
-                            elif tag != '\n':
-                                break
-                except:
-                    pass
-        if result == '':
-            for h3 in soup.find_all('p'):
-                try:
-                    if 'лечение' in h3.next.text.lower():
-                        for tag in h3.next_siblings:
-                            if tag.name == 'ul':
-                                result += tag.text
-                            elif tag != '\n' or h3.text.lower() == 'осложнения':
-                                break
-                except:
-                    pass
-        result = result.replace("'", "\"")
-        return title.next, result
+        for tag in soup.find_all(name=['h2', 'h3', 'h4', 'p']):
+            result += self.parse_treatment(tag)
+
+        return title, result
 
     def __parse_diagnos(self, html):
         soup = BeautifulSoup(html, "lxml")
