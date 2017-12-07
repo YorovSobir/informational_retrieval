@@ -22,10 +22,10 @@ class Parser:
             return tag.string
         return '\n'.join(self.get_tag_text(t) for t in tag)
 
-    def get_treatment(self, tag):
+    def get_treatment(self, tag, break_tag):
         result = ''
         for t in tag.next_siblings:
-            if isinstance(t, Tag) and t.name == tag.name and not result:
+            if isinstance(t, Tag) and t.name == break_tag and not result:
                 break
             result += self.get_tag_text(t)
         return result
@@ -35,23 +35,42 @@ class Parser:
         if isinstance(tag, Tag):
             for t in tag.contents:
                 if isinstance(t, NavigableString) and 'лечение' in t.lower():
-                    result += self.get_treatment(tag)
+                    result += self.get_treatment(tag, tag.name)
                 elif isinstance(t, Tag):
                     for t2 in t.contents:
                         if (isinstance(t2, NavigableString) and 'лечение' in t2.lower()) or \
                                 (t2.string and 'лечение' in t2.string.lower()):
-                            result += self.get_treatment(tag)
+                            result += self.get_treatment(tag, tag.name)
 
         return result
 
     def __parse_likar(self, html):
         soup = BeautifulSoup(html, "lxml")
-        title = soup.find_all('h1', {"class": "article-title"})[0]
-        # title = soup.head.title
+        title = soup.head.title
         result = ''
         for tag in soup.find_all(name=['h2', 'h3', 'h4', 'p']):
             result += self.parse_treatment(tag)
 
+        return title, result
+
+    def __parse_online_diagnos(self, html):
+        soup = BeautifulSoup(html, "lxml")
+        title = soup.head.title
+        result = ''
+        for tag in soup.find_all(name=['h2']):
+            if tag.string and 'лечение' in tag.string.lower():
+                result += self.get_treatment(tag, 'h3')
+        return title, result
+
+    def __parse_medaboutme(self, html):
+        soup = BeautifulSoup(html, "lxml")
+        title = soup.head.title
+        result = ''
+        for tag in soup.findAll("div", {"class": "disease-detail-body"}):
+            for t in tag.contents:
+                if t.name == 'h3' and 'лечение' in t.string.lower():
+                    result += self.get_tag_text(tag)
+                    break
         return title, result
 
     def __parse_diagnos(self, html):
