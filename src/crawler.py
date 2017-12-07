@@ -25,15 +25,6 @@ class Crawler:
     def get_urls(self, url, delay):
         time.sleep(delay)
         result = []
-        # try:
-        #     parsed_url = urllib.parse.urlparse(url)
-        # except ValueError as e:
-        #     logging.warning(str(e))
-        #     return result
-        #
-        # if parsed_url.netloc not in self.__base_urls:
-        #     logging.info('url = ' + parsed_url.netloc + ' are not in base')
-        #     return result
         from_based_urls = False
         for base_url in self.__base_urls:
             if base_url in url:
@@ -114,14 +105,6 @@ class Crawler:
 
 
 def crawler(db, urls, data_dir):
-    # urls_domain = []
-    # for url in urls:
-    #     try:
-    #         domain = urllib.parse.urlparse(url)
-    #     except ValueError as e:
-    #         logging.warning(str(e))
-    #         continue
-    #     urls_domain.append(domain.netloc)
     db.add_base(urls)
     db.add_url(urls)
     Crawler(db, data_dir).run()

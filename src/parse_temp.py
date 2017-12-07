@@ -41,15 +41,14 @@ def parse_treatment(tag):
 
 def __parse_online_diagnos(html):
     soup = BeautifulSoup(html, "lxml")
-    title = soup.head.title
+    title = soup.find('h1', {'class': 'title-h1'})
+    if not title:
+        return None, None
     result = ''
     for tag in soup.find_all(name=['h2']):
         if tag.string and 'лечение' in tag.string.lower():
-            result += get_treatment(tag)
-    if not result:
-        return False
-    return True
-    # return title, result
+            result += get_treatment(tag, 'h3')
+    return title.text.strip(), result
 
 
 def __parse_medaboutme(html):
@@ -70,29 +69,25 @@ def __parse_medicine(html):
     result = ''
     for tag in soup.find_all(name=['h2']):
         result += parse_treatment(tag)
-    print(title)
-    print(len(result))
-    return title, result
+    return title.text.strip(), result
 
 
-def __parse_krasotaimedicina(html):
+def __parse_krasota_i_medicina(html):
     soup = BeautifulSoup(html, "lxml")
     title = soup.find_all('h1')[0]
     result = ''
     for tag in soup.find_all(name=['h2']):
         result += parse_treatment(tag)
-    print(title.text.strip())
     if len(result) < 20:
-
-    print(len(result))
-    return title, result
+        return None, None
+    return title.text.strip(), result
 
 
 if __name__ == '__main__':
-    db = pg_driver.connect(user='ir_med', password='medicine', host='192.168.1.215', dbname='ir_db')
+    db = pg_driver.connect(user='ir_med', password='medicine', host='localhost', dbname='ir_db')
     db.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
     cur = db.cursor()
-    cur.execute('select url from storage where url like \'%medaboutme%\'')
+    cur.execute('select url from storage where url like \'%online-diagnos%\'')
     res = cur.fetchall()
     count = 0
     for r in res:
@@ -100,7 +95,7 @@ if __name__ == '__main__':
         path = Path(os.path.join(full_path, 'content.txt'))
         if path.exists():
             html = path.read_text(encoding='utf-8')
-            if not __parse_medaboutme(html):
+            if not __parse_online_diagnos(html):
                 print(r[0])
                 count += 1
         else:

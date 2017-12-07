@@ -3,7 +3,7 @@ import logging
 import os
 from utils.db_service import DBService
 from crawler import crawler
-from index import index_multiprocess
+from index import index
 from preprocess import preprocess
 
 
@@ -42,7 +42,7 @@ if __name__ == '__main__':
         crawler(db, args.urls, os.path.abspath(args.data_dir))
     elif args.index:
         logging.basicConfig(filename='./log/index.log', level=logging.DEBUG, format=log_format)
-        index_multiprocess(db, os.path.abspath(args.data_dir), os.path.abspath(args.index_dir))
+        index(db, os.path.abspath(args.data_dir), os.path.abspath(args.index_dir))
     elif args.preprocess:
         print('Start preprocess')
         logging.basicConfig(filename='./log/preprocess.log', level=logging.DEBUG, format=log_format)

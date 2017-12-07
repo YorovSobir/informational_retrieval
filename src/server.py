@@ -9,11 +9,11 @@ def index():
     result = cards("сыпь на голове температура")
     divs = ['<div style="display: flex;" class="row bs-callout ' for _ in result]
     for i, res in enumerate(result):
-        if res[0][3] == 1:
+        if res[0][3] == 4:
             divs[i] += 'bs-callout-danger">'
-        elif res[0][3] == 72:
+        elif res[0][3] == 1:
             divs[i] += 'bs-callout-middle">'
-        elif res[0][3] == 89:
+        elif res[0][3] == 3:
             divs[i] += 'bs-callout-low">'
         else:
             divs[i] += 'bs-callout-nothing">\n'
@@ -25,7 +25,7 @@ def index():
         if not res[0][3]:
             divs[i] += """  <div class="container col-sm-4" style="margin-left: 5%;">
                                 <div class="row">
-                                    <h3>Оцените тяжесть болезни </br> 
+                                    <h3>Оцените тяжесть болезни </br>
                                         <small>Чем выше тем хуже</small>
                                     </h3>
                                 </div>
@@ -34,7 +34,7 @@ def index():
                                     <h3>
                                         <small><span id="count"></span></small>
                                     </h3>
-                                </div>    
+                                </div>
                             </div>"""
         else:
             divs[i] += '<div class="container col-sm-4"></div>'

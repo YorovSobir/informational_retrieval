@@ -64,11 +64,14 @@ def clean_doc(document):
 
 
 def preprocess(db, data_dir):
-    Data(db, data_dir).preprocess()
+    # Data(db, data_dir).preprocess()
+    Data(db, data_dir).doc_count()
 
 
 if __name__ == '__main__':
     parser = build_parser()
     args = parser.parse_args()
+    log_format = '%(asctime) -15s %(levelname)s:%(message)s'
+    logging.basicConfig(filename='./log/preprocess.log', level=logging.DEBUG, format=log_format)
     db_service = DBService(user=args.user, password=args.password, host=args.host, dbname=args.database)
     preprocess(db_service, args.data_dir)
