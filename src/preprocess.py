@@ -51,6 +51,8 @@ def clean_doc(document):
     if path.exists():
         raw_data = path.read_text(encoding='utf-8')
         raw_data = BeautifulSoup(raw_data, 'lxml').getText()
+        raw_data_path = Path(os.path.join(full_path, 'content_without_tags.txt'))
+        raw_data_path.write_text(raw_data, encoding='utf-8')
         words = preprocess_text(raw_data)
         with open(os.path.join(full_path, 'words'), 'wb') as f:
             try:

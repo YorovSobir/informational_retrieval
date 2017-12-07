@@ -1,14 +1,14 @@
 from bs4 import BeautifulSoup
 from pathlib import Path
 import os
-from DBConnect import DBService
-from store import Store
+from src.utils.utils import url_to_path
+from src.utils.db_service import DBService
 
 
 class FindLevel:
-    def __init__(self, db_service, store):
+    def __init__(self, db_service, data_dir):
         self.__cur = db_service.cur
-        self.__store = store
+        self.__data_dir = data_dir
         self.__db = db_service.db
 
     def find(self):
@@ -16,7 +16,7 @@ class FindLevel:
         self.__cur.execute(cmd)
         result = self.__cur.fetchall()
         for url in result:
-            full_path = self.__store.url_to_path(url[0])
+            full_path = url_to_path(url[0], self.__data_dir)
             path = Path(os.path.join(full_path, 'content.txt'))
             if path.exists():
                 data = path.read_text(encoding='utf-8')
@@ -48,6 +48,6 @@ class FindLevel:
 
 if __name__ == "__main__":
     db_service = DBService(user='ir_med', password='medicine', host='localhost', dbname='ir_db')
-    store = Store('./data')
-    fl = FindLevel(db_service, store)
+    data_dir = './data'
+    fl = FindLevel(db_service, data_dir)
     fl.find()

@@ -1,8 +1,8 @@
 from bs4 import BeautifulSoup, Tag, NavigableString
 from pathlib import Path
 import os
-from DBConnect import DBService
-from store import Store
+from src.utils.utils import url_to_path
+from src.utils.db_service import DBService
 
 
 class Parser:
@@ -76,11 +76,12 @@ class Parser:
 
 
 class FindDisease:
-    def __init__(self, db_service, store):
+    def __init__(self, db_service, data_dir):
         self.__cur = db_service.cur
-        self.__store = store
+        self.__data_dir = data_dir
         self.__db = db_service.db
-        self.__base = ['ru.likar.info/bolezni/', 'www.diagnos.ru/diseases/', 'www.genesha.ru/diseases/']
+        # self.__base = ['ru.likar.info/bolezni/', 'www.diagnos.ru/diseases/', 'www.genesha.ru/diseases/']
+        self.__base = ['www.diagnos.ru/diseases/']
 
     def find(self):
         for base in self.__base:
@@ -89,7 +90,7 @@ class FindDisease:
             self.__cur.execute(cmd)
             result = self.__cur.fetchall()
             for idx, url in result:
-                full_path = self.__store.url_to_path(url)
+                full_path = url_to_path(url, self.__data_dir)
                 path = Path(os.path.join(full_path, 'content.txt'))
                 if path.exists():
                     html = path.read_text(encoding='utf-8')
@@ -103,6 +104,6 @@ class FindDisease:
 
 if __name__ == '__main__':
     db_service = DBService(user='ir_med', password='medicine', host='localhost', dbname='ir_db')
-    store = Store('./data')
-    FD = FindDisease(db_service, store)
+    data_dir = './data'
+    FD = FindDisease(db_service, data_dir)
     FD.find()

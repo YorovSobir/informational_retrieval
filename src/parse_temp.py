@@ -28,7 +28,7 @@ def parse_treatment(tag):
     result = ''
     if isinstance(tag, Tag):
         for t in tag.contents:
-            if isinstance(t, NavigableString) and 'лечение' in t.lower():
+            if isinstance(t, NavigableString) and ('лечение' in t.lower() and 'лечение в Санкт' not in t.lower()):
                 result += get_treatment(tag)
             elif isinstance(t, Tag):
                 for t2 in t.contents:
@@ -50,26 +50,51 @@ def __parse_likar(html):
     return title, result
 
 
+def __parse_medicine(html):
+    soup = BeautifulSoup(html, "lxml")
+    title = soup.find_all('h1', {'itemprop': 'name'})[0]
+    result = ''
+    for tag in soup.find_all(name=['h2']):
+        result += parse_treatment(tag)
+    print(title)
+    print(len(result))
+    return title, result
+
+
+def __parse_krasotaimedicina(html):
+    soup = BeautifulSoup(html, "lxml")
+    title = soup.find_all('h1')[0]
+    result = ''
+    for tag in soup.find_all(name=['h2']):
+        result += parse_treatment(tag)
+    print(title.text.strip())
+    if len(result) < 20:
+
+    print(len(result))
+    return title, result
+
+
 if __name__ == '__main__':
-    db = pg_driver.connect(user='ir_med', password='medicine', host='localhost', dbname='ir_db')
+    db = pg_driver.connect(user='ir_med', password='medicine', host='192.168.1.215', dbname='ir_db')
     db.set_isolation_level(ISOLATION_LEVEL_READ_COMMITTED)
     cur = db.cursor()
-    cur.execute('select url from storage where url like \'%likar.info%\'')
+    cur.execute('select url from storage where url like \'%zdorovieinfo%\'')
     res = cur.fetchall()
-    first = False
+    count = 0
     for r in res:
-        if not first and r[0] != 'http://www.likar.info/bolezni/Patogenez/':
-            first = True
-            continue
-        if re.match('http://www.likar.info/bolezni/letter/*', r[0]) or \
-                        r[0] == 'http://www.likar.info/bolezni/Patogenez/':
-            continue
-        full_path = url_to_path(r[0], data_dir='/home/sobir/spbau/secondyear/temp/data')
+        full_path = url_to_path(r[0], data_dir='/Users/vadim/informational_retrieval/src/data')
         path = Path(os.path.join(full_path, 'content.txt'))
         if path.exists():
             html = path.read_text(encoding='utf-8')
-            if not __parse_likar(html):
+            try:
+                if not __parse_krasotaimedicina(html):
+                    print(r[0])
+                else:
+                    print(r[0])
+            except:
                 print(r[0])
+                count += 1
         else:
             print('path not exists ' + r[0])
-            break
+    print("All {0} \n Bad {1}".format(len(res), count))
+

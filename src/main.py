@@ -44,5 +44,6 @@ if __name__ == '__main__':
         logging.basicConfig(filename='./log/index.log', level=logging.DEBUG, format=log_format)
         index_multiprocess(db, os.path.abspath(args.data_dir), os.path.abspath(args.index_dir))
     elif args.preprocess:
+        print('Start preprocess')
         logging.basicConfig(filename='./log/preprocess.log', level=logging.DEBUG, format=log_format)
         preprocess(db, os.path.abspath(args.data_dir))
