@@ -3,6 +3,10 @@
     <head lang="ru">
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
         <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
         <style>
             body {
@@ -61,10 +65,6 @@
                 color: #818181;
             }
         </style>
-        <script
-            src="https://code.jquery.com/jquery-3.2.1.min.js"
-            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-            crossorigin="anonymous"></script>
         <script>
             $(document).ready(function(e){
                 $('.search-panel .dropdown-menu').find('a').click(function(e) {
@@ -214,8 +214,10 @@
                               <li><a href="#list">Список</a></li>
                             </ul>
                         </div>
-                        <input type="hidden" name="search_param" value="all" id="search_param">
-                        <input type="text" class="form-control" name="x" placeholder="Поиск...">
+                        <form method="POST">
+                            <input type="hidden" name="search_param" value="all" id="search_param">
+                            <input type="text" class="form-control" name="x" placeholder="Поиск...">
+                        </form>
                         <span class="input-group-btn">
                             <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
                         </span>
