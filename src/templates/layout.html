@@ -66,6 +66,21 @@
             }
         </style>
         <script>
+            {#function saveMarkup(id) {#}
+            {#    $.ajax({#}
+            {#        type: "POST",#}
+            {#        url: "/query",#}
+            {#        contentType: "application/json;charset=UTF-8",#}
+            {#        data: JSON.stringify({#}
+            {#            'taskId': taskId,#}
+            {#            'id': objects[id].id,#}
+            {#            'isBad': objects[id].isBad#}
+            {#        }),#}
+            {#        dataType: "json"#}
+            {#    }).done(function (data) {#}
+            {##}
+            {#    });#}
+            {#}#}
             $(document).ready(function(e){
                 $('.search-panel .dropdown-menu').find('a').click(function(e) {
                     e.preventDefault();
@@ -183,17 +198,28 @@
             $( document ).ready(function() {
 
               $('#stars').on('starrr:change', function(e, value){
-                if (value == 0) {
-                    $('#count').html('');
-                } else if (value == 1) {
+                if (value == 1) {
                     $('#count').html('низкая');
                 } else if (value == 2) {
                     $('#count').html('средняя');
                 } else if (value == 3) {
                     $('#count').html('высокая');
+                } else {
+                    $('#count').html('');
                 }
-              });
+                disease = $('#disease').html();
+                $.ajax({
+                    type: "POST",
+                    url: "/level",
+                    contentType: "application/json;charset=UTF-8",
+                    data: JSON.stringify({
+                        'disease': disease
+                    }),
+                    dataType: "json"
+                });
 
+              });
+//Проблема --------------------------------------
               $('#stars-existing').on('starrr:change', function(e, value){
                 $('#count-existing').html(value);
               });
@@ -206,8 +232,8 @@
                 <div class="col-xs-8 col-xs-offset-2">
                     <div class="input-group">
                         <div class="input-group-btn search-panel">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                <span id="search_concept">Отображение</span> <span class="caret"></span>
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                <span id="search_concept">{{ search_param_name }}</span> <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" role="menu">
                               <li><a href="#card">Карточки</a></li>
@@ -215,12 +241,9 @@
                             </ul>
                         </div>
                         <form method="POST">
-                            <input type="hidden" name="search_param" value="all" id="search_param">
-                            <input type="text" class="form-control" name="x" placeholder="Поиск...">
+                            <input type="hidden" name="search_param" value={{ search_param }} id="search_param">
+                            <input type="text" class="form-control" name="x" placeholder="Поиск..." value={{ query }}>
                         </form>
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
-                        </span>
                     </div>
                 </div>
             </div>
